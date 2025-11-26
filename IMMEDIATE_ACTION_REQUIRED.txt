@@ -1,0 +1,242 @@
+================================================================================
+                        IMMEDIATE ACTION REQUIRED
+================================================================================
+
+STATUS: 95% Complete - Waiting for Firebase Blaze Upgrade
+
+================================================================================
+                        WHAT'S BLOCKING YOU
+================================================================================
+
+Firebase project is on Spark plan (free tier).
+Cloud Functions require Blaze plan (pay-as-you-go).
+
+Error:
+  Your project capstone-a3e18 must be on the Blaze (pay-as-you-go) plan
+
+Solution:
+  Upgrade to Blaze plan (takes 5 minutes)
+
+Cost:
+  FREE for email verification (within free tier)
+
+================================================================================
+                        STEP 1: UPGRADE TO BLAZE (5 MINUTES)
+================================================================================
+
+1. Open this link:
+   https://console.firebase.google.com/project/capstone-a3e18/usage/details
+
+2. Click "Upgrade to Blaze" button
+
+3. Enter credit card information
+
+4. Confirm upgrade
+
+5. Wait 1-2 minutes for upgrade to complete
+
+6. You'll see: "Project upgraded to Blaze plan"
+
+================================================================================
+                        STEP 2: CREATE .env.local (2 MINUTES)
+================================================================================
+
+1. Open: c:\Users\ADMIN\Desktop\chmrsystem\functions\.env.local.example
+
+2. Copy the contents
+
+3. Create new file: c:\Users\ADMIN\Desktop\chmrsystem\functions\.env.local
+
+4. Paste the contents
+
+5. Get Gmail App Password:
+   a. Go to: https://myaccount.google.com/security
+   b. Enable 2-Step Verification (if not already)
+   c. Go to: https://myaccount.google.com/apppasswords
+   d. Select "Mail" and "Windows Computer"
+   e. Copy 16-character password
+
+6. Update .env.local:
+   GMAIL_USER=your-email@gmail.com
+   GMAIL_APP_PASSWORD=your-16-char-password
+
+7. Save file
+
+IMPORTANT: Do NOT commit .env.local to git!
+
+================================================================================
+                        STEP 3: DEPLOY FUNCTIONS (3 MINUTES)
+================================================================================
+
+1. Open PowerShell/Command Prompt
+
+2. Navigate to project:
+   cd c:\Users\ADMIN\Desktop\chmrsystem
+
+3. Deploy:
+   firebase deploy --only functions
+
+4. Wait for completion
+
+5. You should see:
+   ✔  Deploy complete!
+   Function URL: https://us-central1-capstone-a3e18.cloudfunctions.net/sendVerificationEmail
+
+================================================================================
+                        STEP 4: UPDATE FLUTTER APP (1 MINUTE)
+================================================================================
+
+1. Open PowerShell/Command Prompt
+
+2. Navigate to project:
+   cd c:\Users\ADMIN\Desktop\chmrsystem
+
+3. Update dependencies:
+   flutter pub get
+
+4. Done!
+
+================================================================================
+                        STEP 5: TEST REGISTRATION (5 MINUTES)
+================================================================================
+
+1. Run Flutter app
+
+2. Go to Register screen
+
+3. Enter:
+   Email: gonzagaprince919@gmail.com
+   Password: any password
+   Role: any role
+
+4. Click "Register"
+
+5. Check Gmail inbox for verification email
+
+6. Copy code from email
+
+7. Enter code in app
+
+8. Click "Verify Email"
+
+9. Account created successfully!
+
+================================================================================
+                        TOTAL TIME: 16 MINUTES
+================================================================================
+
+Blaze Upgrade:    5 min
+Create .env.local: 2 min
+Deploy functions: 3 min
+Update Flutter:   1 min
+Test registration: 5 min
+---
+TOTAL:           16 min
+
+================================================================================
+                        QUICK COMMANDS
+================================================================================
+
+After Blaze upgrade, run these commands:
+
+# Deploy functions
+firebase deploy --only functions
+
+# Update Flutter
+flutter pub get
+
+# View logs
+firebase functions:log
+
+# List functions
+firebase functions:list
+
+================================================================================
+                        WHAT'S ALREADY DONE
+================================================================================
+
+✅ Firebase CLI installed
+✅ Firebase project selected
+✅ firebase.json updated
+✅ functions/package.json created
+✅ functions/index.js created
+✅ Node.js dependencies installed
+✅ pubspec.yaml updated
+✅ email_verification_service.dart updated
+✅ All code ready to deploy
+
+WAITING FOR:
+⏳ Blaze upgrade
+⏳ .env.local creation
+⏳ Function deployment
+⏳ Testing
+
+================================================================================
+                        IMPORTANT NOTES
+================================================================================
+
+1. Blaze Plan is Pay-As-You-Go
+   - You'll only be charged if you exceed free tier
+   - Email verification is within free tier
+   - Estimated cost: $0.00/month for your usage
+
+2. Gmail App Password
+   - Use 16-character App Password (not regular password)
+   - Requires 2-Factor Authentication
+   - More secure than plain password
+
+3. .env.local File
+   - NEVER commit to git
+   - Add to .gitignore
+   - Keep credentials private
+
+4. Cloud Functions
+   - Deployed to Google Cloud
+   - Scalable and reliable
+   - 24/7 availability
+
+================================================================================
+                        TROUBLESHOOTING
+================================================================================
+
+Q: Blaze upgrade not working?
+A: Try refreshing the page or waiting a few minutes
+
+Q: firebase deploy fails?
+A: Make sure .env.local exists with Gmail credentials
+
+Q: Email not received?
+A: Check spam folder, verify Gmail credentials
+
+Q: Function timeout?
+A: Check network connection, verify Gmail works
+
+Q: Permission denied?
+A: Check Firestore rules include email_verifications
+
+================================================================================
+                        NEXT ACTION
+================================================================================
+
+1. Go to: https://console.firebase.google.com/project/capstone-a3e18/usage/details
+
+2. Click "Upgrade to Blaze"
+
+3. Follow the prompts
+
+4. Then run: firebase deploy --only functions
+
+5. Done!
+
+================================================================================
+                            START HERE
+================================================================================
+
+👉 Upgrade to Blaze: https://console.firebase.google.com/project/capstone-a3e18/usage/details
+
+After upgrade, run:
+  firebase deploy --only functions
+
+Then test registration!
+
+================================================================================

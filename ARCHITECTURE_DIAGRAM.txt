@@ -1,0 +1,469 @@
+================================================================================
+                    HEALTHSPHERE ARCHITECTURE DIAGRAM
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PRESENTATION LAYER                                 │
+│                    (Screens, Widgets, Providers)                           │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Screens                                                              │  │
+│  │ - DashboardAdmin, DashboardHealthWorker, DashboardPatient          │  │
+│  │ - PatientRecordsScreen, AppointmentsScreen, ConsultationScreen     │  │
+│  │ - InventoryScreen, PopulationTrackingScreen, AuditTrailScreen      │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Reusable Widgets (lib/shared/widgets/)                              │  │
+│  │ - AppButton, AppOutlinedButton, AppTextButton                       │  │
+│  │ - AppTextField                                                       │  │
+│  │ - AppCard, AppCardWithHeader, StatCard                              │  │
+│  │ - AppLoadingIndicator, AppEmptyState, AppErrorState                │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ State Management (Providers)                                         │  │
+│  │ - AuthProvider, CustomerProvider, ThemeProvider                     │  │
+│  │ - Feature-specific providers (recommended)                          │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────┬──────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      BUSINESS LOGIC LAYER                                   │
+│                    (Services, Use Cases, Logic)                             │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Services (extend BaseService)                                        │  │
+│  │ - UserService, PatientService, AppointmentService                   │  │
+│  │ - ConsultationService, InventoryService, PopulationService          │  │
+│  │ - AuditService, NotificationService, HealthAlertService             │  │
+│  │ - AuthService, DashboardService, ReportsService                     │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ BaseService (lib/core/services/base_service.dart)                   │  │
+│  │ - executeDbOperation()    - Error handling wrapper                  │  │
+│  │ - getDocument()           - Fetch single document                   │  │
+│  │ - getDocuments()          - Fetch multiple documents                │  │
+│  │ - createDocument()        - Create document                         │  │
+│  │ - updateDocument()        - Update document                         │  │
+│  │ - deleteDocument()        - Delete document                         │  │
+│  │ - batchWrite()            - Batch operations                        │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────┬──────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        DATA LAYER                                           │
+│                  (Firebase, Local Storage)                                  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Firebase Firestore                                                   │  │
+│  │ - users, patients, appointments, consultations                      │  │
+│  │ - medicines, inventory, audit_logs, notifications                   │  │
+│  │ - alerts, population                                                │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Local Storage                                                        │  │
+│  │ - SharedPreferences for user preferences                            │  │
+│  │ - Cache for frequently accessed data                                │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────┬──────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        CORE LAYER                                           │
+│              (Configuration, Exceptions, Logging, DI)                       │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Configuration (lib/core/config/)                                     │  │
+│  │ - AppConfig: App constants, timeouts, validation rules              │  │
+│  │ - EnvironmentConfig: Development, staging, production               │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Exception Handling (lib/core/exceptions/)                            │  │
+│  │ - AppException (base)                                                │  │
+│  │ - AuthException, NetworkException, ValidationException              │  │
+│  │ - NotFoundException, PermissionException, DatabaseException          │  │
+│  │ - CacheException, UnexpectedException                                │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Logging System (lib/core/logging/)                                   │  │
+│  │ - AppLogger: debug, info, warning, error, fatal                     │  │
+│  │ - Environment-aware logging                                          │  │
+│  │ - Stack trace capture                                                │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Result Type Pattern (lib/core/result/)                               │  │
+│  │ - Result<T>: Success<T> | Failure                                    │  │
+│  │ - Functional error handling                                          │  │
+│  │ - map(), fold(), getOrNull()                                         │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Dependency Injection (lib/core/di/)                                  │  │
+│  │ - ServiceLocator: register, get, unregister                          │  │
+│  │ - Lazy singleton support                                             │  │
+│  │ - Type-safe service retrieval                                        │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Extensions (lib/core/extensions/)                                    │  │
+│  │ - StringExtensions: validation, formatting, manipulation             │  │
+│  │ - ContextExtensions: screen utilities, navigation, snackbars         │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Utilities (lib/core/utils/)                                          │  │
+│  │ - Validators: email, password, phone, URL, date, custom             │  │
+│  │ - Formatters: date, time, currency, etc.                            │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Constants (lib/core/constants/)                                      │  │
+│  │ - AppConstants: Collections, roles, status, validation rules        │  │
+│  │ - AppRoutes: Route definitions                                       │  │
+│  │ - AppAssets: Asset paths                                             │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                         DATA FLOW DIAGRAM
+================================================================================
+
+User Interaction
+      │
+      ▼
+┌─────────────────┐
+│  Screen/Widget  │  (Presentation Layer)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Provider      │  (State Management)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Service       │  (Business Logic)
+│ (extends        │
+│  BaseService)   │
+└────────┬────────┘
+         │
+         ├─────────────────────────┐
+         │                         │
+         ▼                         ▼
+┌──────────────────┐      ┌──────────────────┐
+│ Firebase         │      │ Local Storage    │
+│ Firestore        │      │ (SharedPrefs)    │
+└──────────────────┘      └──────────────────┘
+         │                         │
+         └──────────┬──────────────┘
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │ Core Layer           │
+         │ - Logging            │
+         │ - Error Handling     │
+         │ - Configuration      │
+         └──────────────────────┘
+
+================================================================================
+                      ERROR HANDLING FLOW
+================================================================================
+
+Operation in Service
+      │
+      ▼
+┌─────────────────────────────────┐
+│ executeDbOperation()            │
+│ (BaseService method)            │
+└────────┬────────────────────────┘
+         │
+         ▼
+    Try Block
+         │
+    ┌────┴────┐
+    │          │
+Success      Exception
+    │          │
+    ▼          ▼
+Return    ┌─────────────────┐
+Result    │ Catch Exception │
+          └────────┬────────┘
+                   │
+                   ▼
+          ┌──────────────────────┐
+          │ Wrap in Custom       │
+          │ Exception            │
+          │ (AuthException,      │
+          │  NetworkException,   │
+          │  DatabaseException,  │
+          │  etc.)               │
+          └────────┬─────────────┘
+                   │
+                   ▼
+          ┌──────────────────────┐
+          │ Log Error            │
+          │ (AppLogger.error)    │
+          └────────┬─────────────┘
+                   │
+                   ▼
+          ┌──────────────────────┐
+          │ Throw Custom         │
+          │ Exception            │
+          └──────────────────────┘
+                   │
+                   ▼
+          Provider/Screen
+          catches exception
+          and handles it
+
+================================================================================
+                    SERVICE REGISTRATION FLOW
+================================================================================
+
+Application Startup
+      │
+      ▼
+┌──────────────────────────┐
+│ main.dart                │
+│ - Initialize Firebase    │
+│ - Setup Providers        │
+│ - Register Services      │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ ServiceLocator           │
+│ - register<T>(service)   │
+│ - registerLazySingleton  │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ Service Available        │
+│ for Injection            │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ Usage in Services        │
+│ final service =          │
+│   serviceLocator.get<T>()│
+└──────────────────────────┘
+
+================================================================================
+                      FEATURE MODULE STRUCTURE
+================================================================================
+
+features/feature_name/
+│
+├── models/
+│   └── feature_model.dart
+│       - Data models
+│       - fromJson(), toJson()
+│
+├── services/
+│   └── feature_service.dart
+│       - extends BaseService
+│       - Business logic
+│       - Database operations
+│
+├── providers/
+│   └── feature_provider.dart
+│       - extends ChangeNotifier
+│       - State management
+│       - notifyListeners()
+│
+├── screens/
+│   ├── feature_list_screen.dart
+│   ├── feature_detail_screen.dart
+│   └── feature_form_screen.dart
+│       - UI implementation
+│       - Uses providers
+│       - Uses shared widgets
+│
+└── widgets/
+    └── feature_specific_widget.dart
+        - Feature-specific widgets
+        - Not shared across features
+
+================================================================================
+                     WIDGET COMPOSITION PATTERN
+================================================================================
+
+Screen
+  │
+  ├── AppBar
+  │
+  ├── Body
+  │   │
+  │   ├── Consumer<Provider>
+  │   │   │
+  │   │   ├── if (isLoading)
+  │   │   │   └── AppLoadingIndicator
+  │   │   │
+  │   │   ├── if (error != null)
+  │   │   │   └── AppErrorState
+  │   │   │
+  │   │   ├── if (items.isEmpty)
+  │   │   │   └── AppEmptyState
+  │   │   │
+  │   │   └── else
+  │   │       └── ListView.builder
+  │   │           └── ListTile / CustomWidget
+  │   │
+  │   └── FloatingActionButton
+  │
+  └── Drawer / BottomNav
+
+================================================================================
+                        VALIDATION FLOW
+================================================================================
+
+User Input
+    │
+    ▼
+┌──────────────────────┐
+│ AppTextField         │
+│ - validator: (value) │
+└────────┬─────────────┘
+         │
+         ▼
+┌──────────────────────┐
+│ Validators class     │
+│ - validateEmail()    │
+│ - validatePassword() │
+│ - validatePhone()    │
+│ - validateRequired() │
+│ - etc.               │
+└────────┬─────────────┘
+         │
+    ┌────┴────┐
+    │          │
+  Valid      Invalid
+    │          │
+    ▼          ▼
+ Return     Return
+  null    Error Message
+    │          │
+    └────┬─────┘
+         │
+         ▼
+    Display in
+    AppTextField
+    error text
+
+================================================================================
+                       LOGGING FLOW
+================================================================================
+
+Code Execution
+    │
+    ▼
+┌──────────────────────────┐
+│ AppLogger.debug()        │
+│ AppLogger.info()         │
+│ AppLogger.warning()      │
+│ AppLogger.error()        │
+│ AppLogger.fatal()        │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ Check Environment        │
+│ - isDevelopment?         │
+│ - isProduction?          │
+└────────┬─────────────────┘
+         │
+    ┌────┴────┐
+    │          │
+ Debug      Production
+    │          │
+    ▼          ▼
+Print to   Send to
+Console    Crash
+           Reporting
+           Service
+
+================================================================================
+                    DEPENDENCY INJECTION FLOW
+================================================================================
+
+Application Startup
+    │
+    ▼
+┌──────────────────────────┐
+│ ServiceLocator.register  │
+│ <UserService>            │
+│ (UserService())          │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ Service stored in        │
+│ _services map            │
+│ Type -> Instance         │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ Later in Code:           │
+│ serviceLocator.get       │
+│ <UserService>()          │
+└────────┬─────────────────┘
+         │
+         ▼
+┌──────────────────────────┐
+│ Retrieve from map        │
+│ Return instance          │
+└──────────────────────────┘
+
+================================================================================
+                    THEME & STYLING HIERARCHY
+================================================================================
+
+AppTheme (app_theme.dart)
+    │
+    ├── Light Theme
+    │   ├── ColorScheme
+    │   ├── TextTheme
+    │   ├── AppBarTheme
+    │   ├── ButtonThemes
+    │   ├── CardTheme
+    │   ├── InputDecorationTheme
+    │   └── ChipTheme
+    │
+    └── Dark Theme
+        ├── ColorScheme
+        ├── TextTheme
+        ├── AppBarTheme
+        ├── ButtonThemes
+        ├── CardTheme
+        ├── InputDecorationTheme
+        └── ChipTheme
+
+Tokens (tokens.dart)
+    ├── AppColors
+    │   ├── seed (primary color)
+    │   ├── lightScheme
+    │   ├── darkScheme
+    │   └── custom colors
+    │
+    ├── AppTypography
+    │   ├── textTheme()
+    │   └── font definitions
+    │
+    └── AppRadii
+        ├── sm, md, lg
+        └── custom radius values
+
+================================================================================
+                          END OF DIAGRAM
+================================================================================

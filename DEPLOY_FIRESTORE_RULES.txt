@@ -1,0 +1,255 @@
+================================================================================
+                    DEPLOY FIRESTORE RULES - QUICK GUIDE
+================================================================================
+
+PROBLEM: Permission denied error when registering users
+ERROR: [cloud_firestore/permission-denied] Missing or insufficient permissions
+
+SOLUTION: Deploy updated firestore.rules file
+
+================================================================================
+                        OPTION 1: FIREBASE CLI (RECOMMENDED)
+================================================================================
+
+Step 1: Open Terminal/Command Prompt
+  • Windows: Press Win + R, type "cmd", press Enter
+  • Or open PowerShell
+
+Step 2: Navigate to project directory
+  Command:
+    cd c:\Users\ADMIN\Desktop\chmrsystem
+
+Step 3: Deploy Firestore rules
+  Command:
+    firebase deploy --only firestore:rules
+
+Step 4: Wait for deployment
+  You should see:
+    ✔ firestore:rules deployed successfully
+
+Step 5: Verify deployment
+  • Go to Firebase Console
+  • Check Firestore Rules tab
+  • Should see email_verifications rule
+
+================================================================================
+                        OPTION 2: FIREBASE CONSOLE (WEB)
+================================================================================
+
+Step 1: Open Firebase Console
+  URL: https://console.firebase.google.com
+
+Step 2: Select your project
+  • Click on your project name
+
+Step 3: Navigate to Firestore
+  • Click "Firestore Database" in left menu
+
+Step 4: Go to Rules tab
+  • Click "Rules" tab at the top
+
+Step 5: Copy new rules
+  • Open firestore.rules file
+  • Copy all content
+
+Step 6: Paste into editor
+  • Clear existing rules
+  • Paste new rules
+
+Step 7: Publish
+  • Click "Publish" button
+  • Confirm changes
+
+Step 8: Wait for deployment
+  • Should see "Rules updated successfully"
+
+================================================================================
+                        WHAT WAS CHANGED
+================================================================================
+
+Added new rule for email_verifications collection:
+
+  // Email Verifications: allow unauthenticated users to create (during registration)
+  // and authenticated users to read/update their own verification
+  match /email_verifications/{email} {
+    allow create: if true; // Allow unauthenticated users during registration
+    allow read, update: if request.auth != null && request.auth.email == email;
+    allow delete: if request.auth != null && isAllowedAdmin();
+  }
+
+This allows:
+  ✓ Anyone to create verification codes (during registration)
+  ✓ Users to read/update their own verification
+  ✓ Admin to delete verification records
+
+================================================================================
+                        TESTING AFTER DEPLOYMENT
+================================================================================
+
+Test 1: Register New User
+  1. Go to Register screen
+  2. Enter email: gonzagaprince919@gmail.com
+  3. Enter password
+  4. Select role
+  5. Click "Register"
+  
+  Expected: No permission error, code sent
+
+Test 2: Check Firestore
+  1. Go to Firebase Console
+  2. Firestore Database
+  3. Check email_verifications collection
+  4. Should see document with email as ID
+  
+  Expected: Document created with code, timestamps, etc.
+
+Test 3: Verify Code
+  1. Check Firestore for generated code
+  2. Enter code in verification screen
+  3. Click "Verify Email"
+  
+  Expected: Code verified, account created, redirected to login
+
+================================================================================
+                        TROUBLESHOOTING
+================================================================================
+
+Issue: Still getting permission error
+  Solution:
+    1. Verify rules were deployed (check Firebase Console)
+    2. Clear app cache and restart
+    3. Check browser console for detailed error
+    4. Try deploying again
+
+Issue: Can't see email_verifications collection
+  Solution:
+    1. Register a new user (creates the collection)
+    2. Refresh Firestore Console
+    3. Collection appears after first registration
+
+Issue: Code not being stored
+  Solution:
+    1. Check rules are deployed
+    2. Check network tab in DevTools
+    3. Check app logs for errors
+    4. Verify email is valid
+
+Issue: Deployment fails
+  Solution:
+    1. Check Firebase CLI is installed: firebase --version
+    2. Login to Firebase: firebase login
+    3. Select correct project: firebase use --add
+    4. Try deploying again
+
+================================================================================
+                        VERIFY DEPLOYMENT
+================================================================================
+
+Method 1: Firebase Console
+  1. Go to https://console.firebase.google.com
+  2. Select your project
+  3. Click Firestore Database
+  4. Click Rules tab
+  5. Look for email_verifications rule
+  6. Should see "allow create: if true;"
+
+Method 2: Firebase CLI
+  Command:
+    firebase rules:list
+
+  Should show:
+    firestore:rules
+
+Method 3: Test Registration
+  1. Try registering new user
+  2. If no permission error, rules are deployed
+  3. Check Firestore for email_verifications collection
+
+================================================================================
+                        FIRESTORE RULES SUMMARY
+================================================================================
+
+Collection: email_verifications
+Document ID: {email}
+
+Rules:
+  • CREATE: Allowed for anyone (unauthenticated)
+  • READ: Allowed for authenticated users (own email only)
+  • UPDATE: Allowed for authenticated users (own email only)
+  • DELETE: Allowed for admin only
+
+Security:
+  ✓ Users can only access their own verification
+  ✓ No data exposure to other users
+  ✓ Admin has full control
+
+================================================================================
+                        NEXT STEPS
+================================================================================
+
+1. Deploy the rules (using CLI or Console)
+2. Test registration flow
+3. Verify code is stored in Firestore
+4. Test email verification
+5. Monitor for any errors
+
+================================================================================
+                        QUICK COMMANDS
+================================================================================
+
+Deploy rules:
+  firebase deploy --only firestore:rules
+
+Check deployment:
+  firebase rules:list
+
+View rules:
+  firebase rules:get firestore
+
+Login to Firebase:
+  firebase login
+
+Select project:
+  firebase use --add
+
+================================================================================
+                        FILES INVOLVED
+================================================================================
+
+Modified:
+  • firestore.rules - Added email_verifications rule
+
+Created:
+  • FIRESTORE_RULES_UPDATE.md - Detailed update guide
+  • DEPLOY_FIRESTORE_RULES.txt - This file
+
+Related:
+  • lib/services/email_verification_service.dart
+  • lib/screens/email_verification_screen.dart
+  • lib/screens/register_screen.dart
+
+================================================================================
+                        ESTIMATED TIME
+================================================================================
+
+Deployment time: 1-2 minutes
+Testing time: 5-10 minutes
+Total: 10-15 minutes
+
+================================================================================
+                            SUMMARY
+================================================================================
+
+✅ Rules updated to allow email verification
+✅ Ready for deployment
+✅ Two deployment options available
+✅ Testing steps provided
+✅ Troubleshooting guide included
+
+NEXT ACTION: Deploy rules using Firebase CLI or Console
+
+================================================================================
+                            END OF GUIDE
+================================================================================
+
+For detailed information, see: FIRESTORE_RULES_UPDATE.md

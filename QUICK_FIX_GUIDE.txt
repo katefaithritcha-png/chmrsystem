@@ -1,0 +1,165 @@
+================================================================================
+                        QUICK FIX GUIDE - 3 STEPS
+================================================================================
+
+PROBLEM: [cloud_firestore/permission-denied] Missing or insufficient permissions
+
+SOLUTION: Deploy updated firestore.rules file
+
+================================================================================
+                            STEP 1: DEPLOY RULES
+================================================================================
+
+Option A: Firebase CLI (Recommended)
+
+  1. Open Command Prompt or PowerShell
+  2. Type:
+     cd c:\Users\ADMIN\Desktop\chmrsystem
+  3. Type:
+     firebase deploy --only firestore:rules
+  4. Wait for completion (1-2 minutes)
+  5. You should see: ✔ firestore:rules deployed successfully
+
+Option B: Firebase Console
+
+  1. Go to: https://console.firebase.google.com
+  2. Select your project
+  3. Click "Firestore Database"
+  4. Click "Rules" tab
+  5. Copy content from firestore.rules file
+  6. Paste into editor
+  7. Click "Publish"
+  8. Wait for completion
+
+================================================================================
+                            STEP 2: VERIFY DEPLOYMENT
+================================================================================
+
+Check Firebase Console:
+  1. Go to https://console.firebase.google.com
+  2. Select your project
+  3. Click "Firestore Database"
+  4. Click "Rules" tab
+  5. Look for: "allow create: if true;" (email_verifications rule)
+  6. Should be there ✓
+
+================================================================================
+                            STEP 3: TEST REGISTRATION
+================================================================================
+
+Test the fix:
+  1. Go to Register screen
+  2. Enter email: gonzagaprince919@gmail.com
+  3. Enter password
+  4. Select role
+  5. Click "Register"
+
+Expected Result:
+  ✓ No permission error
+  ✓ Verification code generated
+  ✓ Redirected to EmailVerificationScreen
+  ✓ Code stored in Firestore
+
+================================================================================
+                            WHAT WAS CHANGED
+================================================================================
+
+Added to firestore.rules:
+
+  match /email_verifications/{email} {
+    allow create: if true;
+    allow read, update: if request.auth != null && request.auth.email == email;
+    allow delete: if request.auth != null && isAllowedAdmin();
+  }
+
+This allows:
+  ✓ Anyone to create verification codes (during registration)
+  ✓ Users to read/update their own verification
+  ✓ Admin to delete verification records
+
+================================================================================
+                            TROUBLESHOOTING
+================================================================================
+
+Issue: Still getting permission error
+  → Check rules were deployed in Firebase Console
+  → Clear app cache and restart
+  → Try deploying again
+
+Issue: Can't see email_verifications collection
+  → Register a new user (creates the collection)
+  → Refresh Firestore Console
+  → Collection appears after first registration
+
+Issue: Deployment fails
+  → Check Firebase CLI: firebase --version
+  → Login: firebase login
+  → Select project: firebase use --add
+  → Try again
+
+================================================================================
+                            VERIFICATION CHECKLIST
+================================================================================
+
+After deployment, verify:
+  [ ] Rules deployed successfully
+  [ ] No permission error on registration
+  [ ] email_verifications collection created
+  [ ] Code stored in Firestore
+  [ ] Email verification works
+  [ ] Account created after verification
+  [ ] Login works with new account
+
+================================================================================
+                            FIRESTORE RULES ADDED
+================================================================================
+
+Collection: email_verifications
+Document ID: {email}
+
+Permissions:
+  CREATE: ✓ Allowed (anyone)
+  READ: ✓ Allowed (authenticated users, own email only)
+  UPDATE: ✓ Allowed (authenticated users, own email only)
+  DELETE: ✓ Allowed (admin only)
+
+================================================================================
+                            TIME ESTIMATE
+================================================================================
+
+Deployment: 1-2 minutes
+Testing: 5-10 minutes
+Total: 10-15 minutes
+
+================================================================================
+                            DOCUMENTATION
+================================================================================
+
+For more details, see:
+  • FIRESTORE_RULES_UPDATE.md - Complete guide
+  • DEPLOY_FIRESTORE_RULES.txt - Detailed steps
+  • FIRESTORE_FIX_SUMMARY.md - Summary
+
+================================================================================
+                            NEXT STEPS
+================================================================================
+
+1. Deploy rules (Step 1 above)
+2. Verify deployment (Step 2 above)
+3. Test registration (Step 3 above)
+4. Check Firestore for email_verifications collection
+5. Test email verification flow
+6. Monitor for any errors
+
+================================================================================
+                            SUMMARY
+================================================================================
+
+✅ Problem: Permission denied for email_verifications
+✅ Solution: Added rule to firestore.rules
+✅ Status: Ready to deploy
+✅ Time: 10-15 minutes to complete
+
+NEXT ACTION: Deploy rules using Firebase CLI or Console
+
+================================================================================

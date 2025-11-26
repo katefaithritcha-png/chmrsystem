@@ -1,0 +1,612 @@
+================================================================================
+                    EMAIL VERIFICATION FLOW DIAGRAMS
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                    REGISTRATION WITH EMAIL VERIFICATION                 │
+│                              FLOW DIAGRAM                               │
+└──────────────────────────────────────────────────────────────────────────┘
+
+START
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│         RegisterScreen                   │
+│                                          │
+│  • Email input field                     │
+│  • Password input field                  │
+│  • Role selection dropdown               │
+│  • Register button                       │
+└──────────────────────────────────────────┘
+  │
+  ▼
+User fills form and clicks "Register"
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│    Form Validation                       │
+│                                          │
+│  • Email not empty?                      │
+│  • Password >= 6 chars?                  │
+│  • Role selected?                        │
+└──────────────────────────────────────────┘
+  │
+  ├─→ Invalid → Show error → Back to form
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│  EmailVerificationService                │
+│  .sendVerificationCode(email)            │
+│                                          │
+│  1. Generate 6-digit code                │
+│  2. Store in Firestore                   │
+│  3. Set expiry (10 min)                  │
+│  4. Initialize attempts (0)              │
+└──────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│    Send Email (TODO)                     │
+│                                          │
+│  Currently: Log to console               │
+│  Production: Send via email service      │
+│  • SendGrid                              │
+│  • Mailgun                               │
+│  • AWS SES                               │
+│  • Firebase Cloud Functions              │
+└──────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│    Navigate to                           │
+│    EmailVerificationScreen               │
+│                                          │
+│  Pass: email, password, role             │
+└──────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│    EmailVerificationScreen               │
+│                                          │
+│  ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐        │
+│  │  │ │  │ │  │ │  │ │  │ │  │        │
+│  └──┘ └──┘ └──┘ └──┘ └──┘ └──┘        │
+│                                          │
+│  Timer: 09:45                            │
+│  Attempts: 5/5                           │
+│                                          │
+│  [Verify Email] [Resend]                │
+└──────────────────────────────────────────┘
+  │
+  ▼
+User enters 6-digit code
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│  EmailVerificationService                │
+│  .verifyCode(email, code)                │
+│                                          │
+│  1. Get code from Firestore              │
+│  2. Check if expired?                    │
+│  3. Check attempts remaining?            │
+│  4. Compare codes                        │
+│  5. Mark as verified                     │
+└──────────────────────────────────────────┘
+  │
+  ├─→ Invalid → Increment attempts → Show error
+  │             │
+  │             ├─→ Attempts < 5 → Allow retry
+  │             │
+  │             └─→ Attempts >= 5 → Show "Max attempts"
+  │
+  ├─→ Expired → Show "Code expired" → Allow resend
+  │
+  ▼
+Code verified successfully
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│  AuthService.registerUser()              │
+│                                          │
+│  1. Create Firebase Auth account         │
+│  2. Store user in Firestore              │
+│  3. Set role                             │
+│  4. Return success                       │
+└──────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│  Show Success Message                    │
+│                                          │
+│  "Registration successful!               │
+│   Please login."                         │
+└──────────────────────────────────────────┘
+  │
+  ▼
+┌──────────────────────────────────────────┐
+│  Navigate to LoginScreen                 │
+└──────────────────────────────────────────┘
+  │
+  ▼
+END
+
+================================================================================
+                    EMAIL VERIFICATION SCREEN FLOW
+================================================================================
+
+EmailVerificationScreen Loaded
+  │
+  ├─→ Start countdown timer (10 minutes)
+  │
+  ├─→ Load attempts remaining
+  │
+  ▼
+Display UI
+  │
+  ├─→ 6 input fields
+  │
+  ├─→ Timer (MM:SS)
+  │
+  ├─→ Attempts counter (X/5)
+  │
+  ├─→ Verify button
+  │
+  └─→ Resend button
+  │
+  ▼
+User enters code
+  │
+  ├─→ Field 1: User enters digit
+  │   └─→ Auto-focus to Field 2
+  │
+  ├─→ Field 2: User enters digit
+  │   └─→ Auto-focus to Field 3
+  │
+  ├─→ Field 3: User enters digit
+  │   └─→ Auto-focus to Field 4
+  │
+  ├─→ Field 4: User enters digit
+  │   └─→ Auto-focus to Field 5
+  │
+  ├─→ Field 5: User enters digit
+  │   └─→ Auto-focus to Field 6
+  │
+  ▼
+Field 6: User enters digit
+  │
+  ▼
+User clicks "Verify Email"
+  │
+  ▼
+Call verifyCode(email, code)
+  │
+  ├─→ Success
+  │   │
+  │   ├─→ Show success snackbar
+  │   │
+  │   ├─→ Pop screen with verified=true
+  │   │
+  │   └─→ Return to RegisterScreen
+  │
+  ├─→ Invalid Code
+  │   │
+  │   ├─→ Show error message
+  │   │
+  │   ├─→ Decrement attempts
+  │   │
+  │   ├─→ Clear input fields
+  │   │
+  │   └─→ Focus first field
+  │
+  ├─→ Code Expired
+  │   │
+  │   ├─→ Show expiry error
+  │   │
+  │   └─→ Allow resend
+  │
+  └─→ Max Attempts
+      │
+      ├─→ Show max attempts error
+      │
+      └─→ Allow resend
+
+Timer Countdown
+  │
+  ├─→ Every second: Update display
+  │
+  ├─→ < 1 minute: Change color to red
+  │
+  └─→ Expires: Show dialog
+      │
+      ├─→ "Code Expired"
+      │
+      └─→ Allow resend
+
+User clicks "Resend"
+  │
+  ▼
+Call resendVerificationCode(email)
+  │
+  ├─→ Generate new code
+  │
+  ├─→ Store in Firestore
+  │
+  ├─→ Reset timer (10 min)
+  │
+  ├─→ Reset attempts (5)
+  │
+  ├─→ Clear input fields
+  │
+  ├─→ Focus first field
+  │
+  └─→ Show success message
+
+================================================================================
+                    CODE VERIFICATION LOGIC FLOW
+================================================================================
+
+verifyCode(email, code)
+  │
+  ▼
+Get document from Firestore
+  │
+  ├─→ Not found?
+  │   └─→ Throw NotFoundException
+  │
+  ▼
+Extract fields
+  │
+  ├─→ storedCode
+  ├─→ expiresAt
+  ├─→ attempts
+  └─→ verified
+  │
+  ▼
+Check if already verified
+  │
+  ├─→ Yes?
+  │   └─→ Return true
+  │
+  ▼
+Check if expired
+  │
+  ├─→ DateTime.now() > expiresAt?
+  │   └─→ Throw ValidationException("Code expired")
+  │
+  ▼
+Check attempts remaining
+  │
+  ├─→ attempts >= 5?
+  │   └─→ Throw ValidationException("Max attempts exceeded")
+  │
+  ▼
+Compare codes
+  │
+  ├─→ storedCode == code?
+  │   │
+  │   ├─→ Yes
+  │   │   │
+  │   │   ├─→ Update Firestore
+  │   │   │   ├─→ verified = true
+  │   │   │   └─→ verifiedAt = now
+  │   │   │
+  │   │   └─→ Return true
+  │   │
+  │   └─→ No
+  │       │
+  │       ├─→ Increment attempts
+  │       │
+  │       ├─→ Update Firestore
+  │       │
+  │       └─→ Throw ValidationException("Invalid code")
+
+================================================================================
+                    FIRESTORE DATA FLOW
+================================================================================
+
+1. SEND VERIFICATION CODE
+   │
+   ▼
+   EmailVerificationService.sendVerificationCode(email)
+   │
+   ▼
+   Generate code: "123456"
+   │
+   ▼
+   Create Firestore document:
+   │
+   db.collection('email_verifications')
+     .doc(email)
+     .set({
+       'email': email,
+       'code': '123456',
+       'createdAt': now,
+       'expiresAt': now + 10 min,
+       'verified': false,
+       'attempts': 0,
+     }, merge: true)
+   │
+   ▼
+   Firestore Structure:
+   │
+   email_verifications/
+   └── user@example.com/
+       ├── email: "user@example.com"
+       ├── code: "123456"
+       ├── createdAt: Timestamp
+       ├── expiresAt: Timestamp
+       ├── verified: false
+       └── attempts: 0
+
+2. VERIFY CODE
+   │
+   ▼
+   EmailVerificationService.verifyCode(email, code)
+   │
+   ▼
+   Get document from Firestore
+   │
+   ▼
+   Compare code
+   │
+   ├─→ Match?
+   │   │
+   │   ▼
+   │   Update document:
+   │   │
+   │   db.collection('email_verifications')
+   │     .doc(email)
+   │     .update({
+   │       'verified': true,
+   │       'verifiedAt': now,
+   │     })
+   │   │
+   │   ▼
+   │   Firestore Structure:
+   │   │
+   │   email_verifications/
+   │   └── user@example.com/
+   │       ├── email: "user@example.com"
+   │       ├── code: "123456"
+   │       ├── createdAt: Timestamp
+   │       ├── expiresAt: Timestamp
+   │       ├── verified: true ✓
+   │       ├── attempts: 0
+   │       └── verifiedAt: Timestamp
+   │
+   └─→ No match?
+       │
+       ▼
+       Update document:
+       │
+       db.collection('email_verifications')
+         .doc(email)
+         .update({
+           'attempts': attempts + 1,
+         })
+       │
+       ▼
+       Firestore Structure:
+       │
+       email_verifications/
+       └── user@example.com/
+           ├── email: "user@example.com"
+           ├── code: "123456"
+           ├── createdAt: Timestamp
+           ├── expiresAt: Timestamp
+           ├── verified: false
+           ├── attempts: 1 ↑
+           └── verifiedAt: null
+
+3. RESEND CODE
+   │
+   ▼
+   EmailVerificationService.resendVerificationCode(email)
+   │
+   ▼
+   Generate new code: "654321"
+   │
+   ▼
+   Update document:
+   │
+   db.collection('email_verifications')
+     .doc(email)
+     .update({
+       'code': '654321',
+       'createdAt': now,
+       'expiresAt': now + 10 min,
+       'attempts': 0,
+       'verified': false,
+     })
+   │
+   ▼
+   Firestore Structure:
+   │
+   email_verifications/
+   └── user@example.com/
+       ├── email: "user@example.com"
+       ├── code: "654321" ← New code
+       ├── createdAt: Timestamp ← Updated
+       ├── expiresAt: Timestamp ← Updated
+       ├── verified: false
+       ├── attempts: 0 ← Reset
+       └── verifiedAt: null
+
+================================================================================
+                    ERROR HANDLING FLOW
+================================================================================
+
+Verification Error Scenarios
+  │
+  ├─→ Email not found in Firestore
+  │   │
+  │   ├─→ Exception: NotFoundException
+  │   │
+  │   ├─→ Message: "Verification code not found"
+  │   │
+  │   └─→ Action: Show error, allow resend
+  │
+  ├─→ Code expired
+  │   │
+  │   ├─→ Exception: ValidationException
+  │   │
+  │   ├─→ Message: "Code has expired"
+  │   │
+  │   └─→ Action: Show error, allow resend
+  │
+  ├─→ Max attempts exceeded
+  │   │
+  │   ├─→ Exception: ValidationException
+  │   │
+  │   ├─→ Message: "Too many failed attempts"
+  │   │
+  │   └─→ Action: Show error, allow resend
+  │
+  ├─→ Invalid code
+  │   │
+  │   ├─→ Exception: ValidationException
+  │   │
+  │   ├─→ Message: "Invalid verification code"
+  │   │
+  │   ├─→ Action: Increment attempts
+  │   │
+  │   └─→ Action: Show error, allow retry
+  │
+  └─→ Database error
+      │
+      ├─→ Exception: DatabaseException
+      │
+      ├─→ Message: "Error verifying code"
+      │
+      └─→ Action: Show error, allow retry
+
+================================================================================
+                    STATE MANAGEMENT FLOW
+================================================================================
+
+EmailVerificationScreen State
+  │
+  ├─→ _codeControllers: List<TextEditingController>
+  │   └─→ 6 controllers for 6 digits
+  │
+  ├─→ _focusNodes: List<FocusNode>
+  │   └─→ 6 focus nodes for auto-focus
+  │
+  ├─→ _isLoading: bool
+  │   └─→ true during verification
+  │
+  ├─→ _isVerifying: bool
+  │   └─→ true while verifying code
+  │
+  ├─→ _errorMessage: String?
+  │   └─→ Error message to display
+  │
+  ├─→ _remainingSeconds: int
+  │   └─→ Countdown timer value
+  │
+  ├─→ _timer: Timer
+  │   └─→ Periodic timer for countdown
+  │
+  └─→ _attemptsRemaining: int
+      └─→ Remaining verification attempts
+
+State Updates
+  │
+  ├─→ On code input
+  │   └─→ Auto-focus to next field
+  │
+  ├─→ On verify click
+  │   ├─→ Set _isVerifying = true
+  │   ├─→ Call verifyCode()
+  │   └─→ Set _isVerifying = false
+  │
+  ├─→ On verification error
+  │   ├─→ Set _errorMessage
+  │   ├─→ Decrement _attemptsRemaining
+  │   └─→ Clear input fields
+  │
+  ├─→ On timer tick
+  │   ├─→ Decrement _remainingSeconds
+  │   └─→ Update UI
+  │
+  └─→ On resend click
+      ├─→ Set _isLoading = true
+      ├─→ Call resendVerificationCode()
+      ├─→ Reset _remainingSeconds = 600
+      ├─→ Reset _attemptsRemaining = 5
+      ├─→ Clear input fields
+      └─→ Set _isLoading = false
+
+================================================================================
+                    TIMER COUNTDOWN FLOW
+================================================================================
+
+Timer starts: 600 seconds (10 minutes)
+  │
+  ▼
+Every 1 second:
+  │
+  ├─→ Decrement _remainingSeconds
+  │
+  ├─→ Update display (MM:SS format)
+  │
+  ├─→ Check if < 60 seconds
+  │   └─→ Change color to red
+  │
+  └─→ Call setState() to rebuild
+  │
+  ▼
+Remaining seconds reaches 0
+  │
+  ├─→ Cancel timer
+  │
+  ├─→ Show "Code Expired" dialog
+  │
+  └─→ Allow resend
+
+================================================================================
+                    AUTO-FOCUS FLOW
+================================================================================
+
+User types in Field 1
+  │
+  ├─→ onChanged callback triggered
+  │
+  ├─→ Check if value.length == 1
+  │   └─→ Yes: Request focus for Field 2
+  │
+  ▼
+User types in Field 2
+  │
+  ├─→ onChanged callback triggered
+  │
+  ├─→ Check if value.length == 1
+  │   └─→ Yes: Request focus for Field 3
+  │
+  ├─→ Check if value.isEmpty
+  │   └─→ Yes: Request focus for Field 1
+  │
+  ▼
+... (repeat for Fields 3-6)
+  │
+  ▼
+User types in Field 6
+  │
+  ├─→ onChanged callback triggered
+  │
+  └─→ Check if value.length == 1
+      └─→ Yes: Don't focus (last field)
+
+Backspace in Field 2
+  │
+  ├─→ onChanged callback triggered
+  │
+  ├─→ Check if value.isEmpty
+  │   └─→ Yes: Request focus for Field 1
+  │
+  ▼
+User can now edit Field 1
+
+================================================================================
+                            END OF DIAGRAMS
+================================================================================

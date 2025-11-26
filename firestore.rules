@@ -1,0 +1,170 @@
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+
+      function isAllowedAdmin() {
+        return request.auth != null
+              && request.auth.token.email == "katefaithritcha@gmail.com";
+      }
+
+      // Audit logs: HW/Admin can create; Admin can read all and manage.
+      match /audit/{id} {
+        // Create by health worker or admin (app logs actions server-side)
+        allow create: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+        // Read: admin only (to protect sensitive actions)
+        allow read: if request.auth != null && (getUserRole() == 'admin' || isAllowedAdmin());
+        // Update/Delete: restricted to allowed admin only
+        allow update, delete: if request.auth != null && isAllowedAdmin();
+      }
+
+      function getUserRole() {
+        return request.auth == null ? null :
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      }
+
+      function isHealthWorkerOrAdmin() {
+        let role = getUserRole();
+        return role == 'health_worker' || role == 'admin';
+      }
+
+      // Users collection
+      // - Read: owner, health worker, or admin can read
+      // - Write: owner can write their own doc; admin can write any
+      match /users/{userId} {
+        allow read: if request.auth != null && (
+          request.auth.uid == userId || isHealthWorkerOrAdmin() || isAllowedAdmin()
+        );
+        allow write: if request.auth != null && (
+          request.auth.uid == userId || isAllowedAdmin()
+        );
+      }
+
+      // Patients collection (profile/records metadata)
+      match /patients/{id} {
+        allow create, read, update, delete: if request.auth != null;
+      }
+
+      // Appointments: allow authenticated users to create and read.
+      // You can tighten this later (e.g., only patient creator can read/write).
+      match /appointments/{id} {
+        allow create: if request.auth != null;
+        allow read: if request.auth != null;
+        allow update, delete: if request.auth != null;
+      }
+
+      // Consultations: allow authenticated users CRUD (adjust later as needed)
+      match /consultations/{id} {
+        allow create, read, update, delete: if request.auth != null;
+      }
+
+      // Immunizations: patient can read their own; HW/Admin can create/update
+      match /immunizations/{id} {
+        allow read: if request.auth != null && (
+          resource.data.patientId == request.auth.uid || isHealthWorkerOrAdmin() || isAllowedAdmin()
+        );
+        allow create, update: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+        allow delete: if request.auth != null && isAllowedAdmin();
+      }
+
+      // Messages sent by patients to HW/Admin
+      match /patient_messages/{id} {
+        allow create: if request.auth != null; // patient creates
+        allow read: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin() || resource.data.senderId == request.auth.uid);
+        allow update: if request.auth != null && (isHealthWorkerOrAdmin() || resource.data.senderId == request.auth.uid);
+        allow delete: if request.auth != null && (resource.data.senderId == request.auth.uid || isAllowedAdmin());
+      }
+      // Health updates/notifications for patients
+      match /patient_updates/{id} {
+        // Create by any authenticated user; typically HW/Admin creates
+        allow create: if request.auth != null;
+        // Read if recipient or HW/Admin
+        allow read: if request.auth != null && (
+          resource.data.recipientId == request.auth.uid || isHealthWorkerOrAdmin() || isAllowedAdmin()
+        );
+        // Update allowed to recipient (e.g., mark read) or HW/Admin
+        allow update: if request.auth != null && (
+          resource.data.recipientId == request.auth.uid || isHealthWorkerOrAdmin() || isAllowedAdmin()
+        );
+        // Delete allowed to recipient or admin
+        allow delete: if request.auth != null && (
+          resource.data.recipientId == request.auth.uid || isAllowedAdmin()
+        );
+      }
+
+      // Patient health records: patients can create and manage their own records.
+      // Health workers and admin can read all for care coordination.
+      match /patient_records/{id} {
+        allow create: if request.auth != null; // write attaches patientId server-side in app
+        allow read: if request.auth != null && (
+          resource.data.patientId == request.auth.uid || isHealthWorkerOrAdmin() || isAllowedAdmin()
+        );
+        allow update, delete: if request.auth != null && (
+          resource.data.patientId == request.auth.uid || isHealthWorkerOrAdmin() || isAllowedAdmin()
+        );
+      }
+
+      // Admin-only collection
+      match /adminRiskRegister/{docId} {
+        allow read, write: if isAllowedAdmin();
+      }
+
+      // Maternal & Child activities
+      match /maternal_child_activities/{id} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+      }
+
+      // Disease Prevention & Control activities
+      match /disease_activities/{id} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+      }
+
+      // Nutrition: beneficiaries and supplements
+      match /nutrition_beneficiaries/{id} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+      }
+      match /nutrition_supplements/{id} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+      }
+
+      // Environmental & Sanitation inspections
+      match /sanitation_inspections/{id} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && (isHealthWorkerOrAdmin() || isAllowedAdmin());
+      }
+
+      // Messaging threads and messages
+      match /threads/{threadId} {
+        allow create: if request.auth != null && (
+          isHealthWorkerOrAdmin() || isAllowedAdmin() || request.resource.data.participants.hasAny([request.auth.uid])
+        );
+        allow read, update, delete: if request.auth != null && (
+          isHealthWorkerOrAdmin() || isAllowedAdmin() || resource.data.participants.hasAny([request.auth.uid])
+        );
+
+        match /messages/{msgId} {
+          allow create: if request.auth != null && (
+            isHealthWorkerOrAdmin() || isAllowedAdmin() || get(/databases/$(database)/documents/threads/$(threadId)).data.participants.hasAny([request.auth.uid])
+          );
+          allow read, update, delete: if request.auth != null && (
+            isHealthWorkerOrAdmin() || isAllowedAdmin() || get(/databases/$(database)/documents/threads/$(threadId)).data.participants.hasAny([request.auth.uid])
+          );
+        }
+      }
+
+      // Email Verifications: allow anyone to create (during registration)
+      // and anyone to read/update verification
+      match /email_verifications/{email} {
+        allow create, read, update: if true; // Allow during registration (unauthenticated)
+        allow delete: if request.auth != null && isAllowedAdmin();
+      }
+
+      // Deny everything else
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+  }

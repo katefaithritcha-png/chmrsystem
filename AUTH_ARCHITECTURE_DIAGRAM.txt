@@ -1,0 +1,460 @@
+================================================================================
+                    AUTHENTICATION ARCHITECTURE DIAGRAM
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                         APPLICATION ENTRY POINT                         │
+│                              (main.dart)                                │
+│                                                                          │
+│  MultiProvider(                                                          │
+│    providers: [                                                          │
+│      ChangeNotifierProvider(create: (_) => AuthProvider()),             │
+│      ...                                                                 │
+│    ]                                                                     │
+│  )                                                                       │
+└────────────────────────────────┬─────────────────────────────────────────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    │                         │
+                    ▼                         ▼
+        ┌─────────────────────┐   ┌─────────────────────┐
+        │  StartGate Widget   │   │   AuthProvider      │
+        │                     │   │                     │
+        │ • Check if onboard  │   │ • Stores user role  │
+        │ • Route to login    │   │ • Manages state     │
+        │   or onboarding     │   │ • Notifies listeners│
+        └────────────┬────────┘   └──────────┬──────────┘
+                     │                       │
+                     ▼                       │
+        ┌─────────────────────┐             │
+        │  LoginScreen        │◄────────────┘
+        │                     │
+        │ • Email input       │
+        │ • Password input    │
+        │ • Login button      │
+        │ • Register link     │
+        └────────────┬────────┘
+                     │
+                     ▼
+        ┌─────────────────────────────────────────┐
+        │     AuthService.loginUser()             │
+        │                                         │
+        │  1. Firebase Auth sign in               │
+        │     └─ email & password                 │
+        │                                         │
+        │  2. Get user UID                        │
+        │     └─ from Firebase Auth               │
+        │                                         │
+        │  3. Fetch user role                     │
+        │     └─ from Firestore                   │
+        │                                         │
+        │  4. Update lastLoginAt                  │
+        │     └─ in Firestore                     │
+        │                                         │
+        │  5. Return role                         │
+        │     └─ 'admin' | 'health_worker' |      │
+        │        'patient'                        │
+        └────────────┬────────────────────────────┘
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+        ▼                         ▼
+    ┌─────────────────┐   ┌──────────────────────┐
+    │ Firebase Auth   │   │ Firestore Database   │
+    │                 │   │                      │
+    │ • Verify email  │   │ Collection: users    │
+    │ • Hash password │   │ Document: {uid}      │
+    │ • Create user   │   │ Fields:              │
+    │ • Return UID    │   │ • email              │
+    │                 │   │ • role               │
+    │                 │   │ • name               │
+    │                 │   │ • createdAt          │
+    │                 │   │ • lastLoginAt        │
+    └─────────────────┘   └──────────────────────┘
+                     │
+                     ▼
+        ┌─────────────────────────────────────────┐
+        │  AuthProvider.setRole(role)             │
+        │                                         │
+        │  • Store role in _role                  │
+        │  • Call notifyListeners()               │
+        │  • Update all watching widgets          │
+        └────────────┬────────────────────────────┘
+                     │
+                     ▼
+        ┌─────────────────────────────────────────┐
+        │  AuditService.addEvent()                │
+        │                                         │
+        │  • Log login event                      │
+        │  • Store in Firestore                   │
+        │  • For audit trail                      │
+        └────────────┬────────────────────────────┘
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+        ▼                         ▼
+    ┌──────────────┐   ┌──────────────────────┐
+    │ role=='admin'│   │ role=='health_worker'│
+    │              │   │                      │
+    │ Navigate to  │   │ Navigate to          │
+    │ /admin       │   │ /worker              │
+    └──────┬───────┘   └──────────┬───────────┘
+           │                      │
+           ▼                      ▼
+    ┌──────────────┐   ┌──────────────────────┐
+    │ RoleGuard    │   │ RoleGuard            │
+    │              │   │                      │
+    │ Check role   │   │ Check role           │
+    │ == 'admin'   │   │ == 'health_worker'   │
+    │              │   │                      │
+    │ ✓ Allowed    │   │ ✓ Allowed            │
+    └──────┬───────┘   └──────────┬───────────┘
+           │                      │
+           ▼                      ▼
+    ┌──────────────────────┐   ┌──────────────────────┐
+    │ DashboardAdmin       │   │ DashboardHealthWorker│
+    │                      │   │                      │
+    │ • User Management    │   │ • Patient Records    │
+    │ • Reports            │   │ • Consultations      │
+    │ • Audit Trail        │   │ • Appointments       │
+    │ • Backup             │   │ • Inventory          │
+    │ • Population Tracking│   │ • Population Tracking│
+    │ • Inventory          │   │ • Notifications      │
+    └──────────────────────┘   └──────────────────────┘
+           │                      │
+           └──────────┬───────────┘
+                      │
+                      ▼
+            ┌──────────────────────┐
+            │ Other Protected      │
+            │ Routes (RoleGuard)   │
+            │                      │
+            │ /patients            │
+            │ /consultation        │
+            │ /appointments        │
+            │ /records             │
+            │ /notifications       │
+            │ /chat                │
+            └──────────────────────┘
+
+================================================================================
+                        REGISTRATION FLOW
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                      RegisterScreen                                      │
+│                                                                          │
+│  • Email input                                                           │
+│  • Password input                                                        │
+│  • Role selection (dropdown)                                             │
+│    ├─ patient (default)                                                  │
+│    ├─ health_worker                                                      │
+│    └─ admin (restricted)                                                 │
+│  • Register button                                                       │
+└────────────┬─────────────────────────────────────────────────────────────┘
+             │
+             ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│  AuthService.registerUser(email, password, role)                         │
+│                                                                          │
+│  1. Normalize email (lowercase, trim)                                    │
+│  2. Create Firebase Auth account                                         │
+│  3. Determine final role:                                                │
+│     ├─ If role == 'health_worker' → 'health_worker'                     │
+│     ├─ If role == 'admin' AND email == admin email → 'admin'            │
+│     └─ Else → 'patient'                                                  │
+│  4. Store user in Firestore                                              │
+│  5. Return success/error message                                         │
+└────────────┬─────────────────────────────────────────────────────────────┘
+             │
+    ┌────────┴────────┐
+    │                 │
+    ▼                 ▼
+┌──────────────┐  ┌──────────────┐
+│ Firebase Auth│  │ Firestore    │
+│              │  │              │
+│ Create user  │  │ Store user   │
+│ with email & │  │ document     │
+│ password     │  │ with role    │
+└──────────────┘  └──────────────┘
+    │                 │
+    └────────┬────────┘
+             │
+             ▼
+    ┌──────────────────────┐
+    │ Show success message │
+    │ Redirect to login    │
+    └──────────────────────┘
+
+================================================================================
+                        ROLE GUARD FLOW
+================================================================================
+
+User accesses protected route (e.g., /admin)
+             │
+             ▼
+    ┌──────────────────────────────────────┐
+    │ RoleGuard Widget                     │
+    │                                      │
+    │ 1. Get current role from AuthProvider│
+    │    └─ context.watch<AuthProvider>()  │
+    └──────────┬───────────────────────────┘
+               │
+        ┌──────┴──────┐
+        │             │
+        ▼             ▼
+    ┌────────┐   ┌──────────────┐
+    │ role   │   │ role == null │
+    │ != null│   │              │
+    │        │   │ Not logged in│
+    └────┬───┘   └──────┬───────┘
+         │               │
+         ▼               ▼
+    ┌──────────────┐  ┌──────────────────┐
+    │ Check if     │  │ Redirect to      │
+    │ role in      │  │ /login           │
+    │ allowedRoles │  │                  │
+    └──────┬───────┘  └──────────────────┘
+           │
+    ┌──────┴──────┐
+    │             │
+    ▼             ▼
+┌────────┐   ┌──────────────────┐
+│ ✓ Yes  │   │ ✗ No             │
+│        │   │                  │
+│ Show   │   │ Show error       │
+│ screen │   │ Redirect to login│
+└────────┘   └──────────────────┘
+
+================================================================================
+                    STATE MANAGEMENT FLOW
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│                         AuthProvider                                     │
+│                    (ChangeNotifier)                                      │
+│                                                                          │
+│  Private:                                                                │
+│  • _role: String? = null                                                │
+│                                                                          │
+│  Public:                                                                │
+│  • role: String? (getter)                                               │
+│  • isLoggedIn: bool (getter)                                            │
+│                                                                          │
+│  Methods:                                                                │
+│  • setRole(String? role)                                                │
+│    └─ Updates _role                                                     │
+│    └─ Calls notifyListeners()                                           │
+│                                                                          │
+│  • logout()                                                              │
+│    └─ Sets _role = null                                                 │
+│    └─ Calls notifyListeners()                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+             │
+    ┌────────┴────────┐
+    │                 │
+    ▼                 ▼
+┌─────────────┐  ┌──────────────────┐
+│ Watched by: │  │ Consumed by:     │
+│             │  │                  │
+│ • RoleGuard │  │ • LoginScreen    │
+│ • Dashboards│  │ • RegisterScreen │
+│ • Routes    │  │ • Dashboards     │
+│ • Widgets   │  │ • Protected      │
+│             │  │   Routes         │
+└─────────────┘  └──────────────────┘
+
+When setRole() is called:
+  1. Update _role value
+  2. Call notifyListeners()
+  3. All watching widgets rebuild
+  4. RoleGuard checks role
+  5. Routes update based on role
+
+================================================================================
+                    FIRESTORE DATA STRUCTURE
+================================================================================
+
+Database: Cloud Firestore
+Collection: users
+Document ID: {Firebase UID}
+
+Document Structure:
+{
+  "email": "user@example.com",
+  "role": "patient",
+  "name": "John Doe",
+  "createdAt": Timestamp(2024-11-26T10:30:00Z),
+  "lastLoginAt": Timestamp(2024-11-26T15:45:00Z)
+}
+
+Indexes:
+• email (for login lookup)
+• role (for role-based queries)
+• createdAt (for user list sorting)
+• lastLoginAt (for activity tracking)
+
+Queries:
+• Get user by UID: db.collection('users').doc(uid).get()
+• Get user role: doc.data()['role']
+• Update login time: doc.update({'lastLoginAt': now})
+
+================================================================================
+                    SECURITY LAYERS
+================================================================================
+
+Layer 1: Firebase Authentication
+  ├─ Email/password validation
+  ├─ Password hashing
+  ├─ User creation
+  └─ Session management
+
+Layer 2: Email Normalization
+  ├─ Lowercase conversion
+  ├─ Whitespace trimming
+  └─ Duplicate prevention
+
+Layer 3: Role Validation
+  ├─ Valid role check
+  ├─ Admin email restriction
+  ├─ Default role assignment
+  └─ Firestore storage
+
+Layer 4: RoleGuard Protection
+  ├─ Login check
+  ├─ Role verification
+  ├─ Route protection
+  └─ Unauthorized redirect
+
+Layer 5: Audit Logging
+  ├─ Login events logged
+  ├─ Timestamp recorded
+  ├─ Actor identified
+  └─ Firestore storage
+
+================================================================================
+                    COMPONENT INTERACTION
+================================================================================
+
+LoginScreen
+    │
+    ├─→ Uses: AuthService
+    │   └─ loginUser(email, password)
+    │
+    ├─→ Updates: AuthProvider
+    │   └─ setRole(role)
+    │
+    ├─→ Calls: AuditService
+    │   └─ addEvent(actor, action, level)
+    │
+    └─→ Navigates to: RoleGuard protected routes
+        ├─ /admin
+        ├─ /worker
+        └─ /patient
+
+RegisterScreen
+    │
+    ├─→ Uses: AuthService
+    │   └─ registerUser(email, password, role)
+    │
+    └─→ Navigates to: LoginScreen
+
+RoleGuard
+    │
+    ├─→ Watches: AuthProvider
+    │   └─ role
+    │
+    ├─→ Protects: Child widget
+    │   └─ Dashboard or Screen
+    │
+    └─→ Redirects: To /login if unauthorized
+
+AuthProvider
+    │
+    ├─→ Stores: User role
+    │
+    ├─→ Notifies: All watching widgets
+    │
+    └─→ Used by: RoleGuard, Dashboards, Routes
+
+AuthService
+    │
+    ├─→ Integrates: Firebase Auth
+    │   └─ signInWithEmailAndPassword()
+    │   └─ createUserWithEmailAndPassword()
+    │
+    └─→ Integrates: Firestore
+        └─ Store/fetch user data
+        └─ Manage roles
+
+================================================================================
+                    LOGOUT FLOW
+================================================================================
+
+User clicks Logout button
+        │
+        ▼
+AuthProvider.logout()
+        │
+        ├─→ Set _role = null
+        │
+        ├─→ Call notifyListeners()
+        │
+        └─→ All widgets rebuild
+            │
+            ▼
+        RoleGuard detects role == null
+            │
+            ▼
+        Redirect to /login
+            │
+            ▼
+        LoginScreen displayed
+            │
+            ▼
+        User can login again
+
+================================================================================
+                    ERROR HANDLING FLOW
+================================================================================
+
+Login Attempt
+    │
+    ▼
+Try Block
+    │
+    ├─→ Firebase Auth sign in
+    │   │
+    │   ├─ Success → Continue
+    │   │
+    │   └─ Failure → Catch block
+    │
+    ├─→ Fetch user role
+    │   │
+    │   ├─ Success → Continue
+    │   │
+    │   └─ Failure → Default to 'patient'
+    │
+    └─→ Update Firestore
+        │
+        ├─ Success → Continue
+        │
+        └─ Failure → Continue anyway
+
+Catch Block
+    │
+    ├─→ Log error
+    │
+    ├─→ Return 'invalid'
+    │
+    └─→ Show error message to user
+
+Invalid Role
+    │
+    ├─→ Show snackbar
+    │
+    └─→ Stay on login screen
+
+================================================================================
+                            END OF DIAGRAM
+================================================================================

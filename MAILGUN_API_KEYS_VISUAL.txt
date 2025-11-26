@@ -1,0 +1,154 @@
+================================================================================
+                    MAILGUN - CREATE/GET API KEYS
+================================================================================
+
+You need 2 things from Mailgun:
+1. API Key
+2. Domain
+
+Both already exist - just need to copy them!
+
+================================================================================
+                        FIND API KEY
+================================================================================
+
+STEP 1: Go to API Keys Page
+  URL: https://app.mailgun.com/app/account/security/api_keys
+  
+  OR in Dashboard:
+  - Click left menu
+  - Find "Account" or settings icon
+  - Click "API Keys"
+
+STEP 2: Look for "Private API Key"
+  
+  You should see:
+  ┌─────────────────────────────────────┐
+  │ Private API Key                     │
+  │                                     │
+  │ key-abc123def456...                 │
+  │                                     │
+  │ [Copy button]                       │
+  └─────────────────────────────────────┘
+
+STEP 3: Click COPY
+  - The key is copied to clipboard
+  - It looks like: key-abc123def456...
+
+STEP 4: Save it
+  - You'll use this in Flutter code
+
+================================================================================
+                        FIND DOMAIN
+================================================================================
+
+STEP 1: Go to Domains Page
+  URL: https://app.mailgun.com/app/sending/domains
+  
+  OR in Dashboard:
+  - Click left menu
+  - Click "Send"
+  - Click "Domains"
+
+STEP 2: Look for "Sandbox Domain"
+  
+  You should see:
+  ┌─────────────────────────────────────┐
+  │ Sandbox Domain                      │
+  │                                     │
+  │ sandboxabc123def456.mailgun.org     │
+  │                                     │
+  │ [Copy button]                       │
+  └─────────────────────────────────────┘
+
+STEP 3: Click COPY
+  - The domain is copied to clipboard
+  - It looks like: sandboxabc123def456.mailgun.org
+
+STEP 4: Save it
+  - You'll use this in Flutter code
+
+================================================================================
+                        WHAT YOU'LL HAVE
+================================================================================
+
+After copying both:
+
+API Key:
+  key-abc123def456...
+
+Domain:
+  sandboxabc123def456.mailgun.org
+
+================================================================================
+                        UPDATE FLUTTER CODE
+================================================================================
+
+File: lib/services/email_verification_service.dart
+Lines: 75-76
+
+BEFORE:
+  const mailgunApiKey = 'YOUR_MAILGUN_API_KEY';
+  const mailgunDomain = 'YOUR_MAILGUN_DOMAIN';
+
+AFTER:
+  const mailgunApiKey = 'key-abc123def456...';
+  const mailgunDomain = 'sandboxabc123def456.mailgun.org';
+
+================================================================================
+                        QUICK LINKS
+================================================================================
+
+API Keys Page:
+  https://app.mailgun.com/app/account/security/api_keys
+
+Domains Page:
+  https://app.mailgun.com/app/sending/domains
+
+Dashboard:
+  https://app.mailgun.com/app/dashboard
+
+================================================================================
+                        STEPS
+================================================================================
+
+1. Go to API Keys page
+   └─ Copy API Key (key-xxx...)
+
+2. Go to Domains page
+   └─ Copy Domain (sandboxXXX.mailgun.org)
+
+3. Update Flutter code
+   └─ Replace 2 lines with credentials
+
+4. Run flutter pub get
+   └─ Install dependencies
+
+5. Test registration
+   └─ Register new user
+   └─ Check email inbox
+   └─ Enter code
+
+================================================================================
+                        IMPORTANT
+================================================================================
+
+✓ API Key is sensitive - keep it private
+✓ Don't commit to git
+✓ Sandbox domain limited to 100 emails/day
+✓ Free tier: 5,000 emails/month
+✓ Cost: $0
+
+================================================================================
+                        NEXT ACTION
+================================================================================
+
+1. Go to: https://app.mailgun.com/app/account/security/api_keys
+2. Copy API Key
+3. Go to: https://app.mailgun.com/app/sending/domains
+4. Copy Domain
+5. Update Flutter code (2 lines)
+6. Run: flutter pub get
+7. Test!
+
+================================================================================
