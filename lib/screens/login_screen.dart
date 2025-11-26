@@ -4,6 +4,7 @@ import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
 import '../services/audit_service.dart';
+import '../core/responsive/responsive_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,17 +32,20 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (role == "admin") {
-      AuditService().addEvent(actor: 'Admin: $email', action: 'Login', level: 'info');
+      AuditService()
+          .addEvent(actor: 'Admin: $email', action: 'Login', level: 'info');
       context.read<AuthProvider>().setRole('admin');
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/admin');
     } else if (role == "health_worker") {
-      AuditService().addEvent(actor: 'Health Worker: $email', action: 'Login', level: 'info');
+      AuditService().addEvent(
+          actor: 'Health Worker: $email', action: 'Login', level: 'info');
       context.read<AuthProvider>().setRole('health_worker');
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/worker');
     } else if (role == "patient") {
-      AuditService().addEvent(actor: 'Patient: $email', action: 'Login', level: 'info');
+      AuditService()
+          .addEvent(actor: 'Patient: $email', action: 'Login', level: 'info');
       context.read<AuthProvider>().setRole('patient');
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/patient');
@@ -58,6 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsivePadding = ResponsiveHelper.getResponsivePadding(context);
+    final responsiveBorderRadius =
+        ResponsiveHelper.getResponsiveBorderRadius(context);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -74,12 +82,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: responsivePadding,
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1000),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(responsiveBorderRadius + 4),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black26.withAlpha(26),
@@ -118,7 +126,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 "Welcome to HealthSphere",
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                   fontSize: 26,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -127,7 +136,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 "Manage community health records with efficiency and care.",
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                   fontSize: 16,
                                 ),
                               ),
@@ -240,7 +250,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : ElevatedButton(
                                     onPressed: _login,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.primary,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
                                       minimumSize: const Size(
                                         double.infinity,
                                         50,
@@ -269,7 +280,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Text(
                                   "Don’t have an account? Register here",
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -297,7 +309,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 28),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -306,7 +319,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(

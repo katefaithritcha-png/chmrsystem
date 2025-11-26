@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/email_verification_service.dart';
 import '../screens/email_verification_screen.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -90,22 +92,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsivePadding = ResponsiveHelper.getResponsivePadding(context);
+    final responsiveSpacing = ResponsiveHelper.getResponsiveSpacing(context);
+    final responsiveBorderRadius =
+        ResponsiveHelper.getResponsiveBorderRadius(context);
+    final responsiveIconSize = ResponsiveHelper.getResponsiveIconSize(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
-        title: const Text("Create an Account"),
+        title: const ResponsiveHeading2("Create an Account"),
         backgroundColor: Theme.of(context).colorScheme.primary,
         elevation: 0,
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: responsivePadding,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 520),
-            padding: const EdgeInsets.all(24),
+            padding: responsivePadding,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(responsiveBorderRadius),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black12.withAlpha(26),
@@ -118,21 +126,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.person_add_alt_1,
                     color: Colors.blueAccent,
-                    size: 60,
+                    size: responsiveIconSize,
                   ),
-                  const SizedBox(height: 10),
-                  Text(
+                  SizedBox(height: responsiveSpacing),
+                  ResponsiveHeading2(
                     "Register to HealthSphere",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: responsiveSpacing * 2),
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
@@ -143,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (value) =>
                         value!.isEmpty ? "Please enter your email" : null,
                   ),
-                  const SizedBox(height: 15),
+                  SizedBox(height: responsiveSpacing),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -156,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? "Password must be at least 6 characters"
                         : null,
                   ),
-                  const SizedBox(height: 15),
+                  SizedBox(height: responsiveSpacing),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedRole,
                     items: const [
@@ -180,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: responsiveSpacing * 2),
                   _isLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
@@ -190,12 +194,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 Theme.of(context).colorScheme.primary,
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                          child: const Text(
+                          child: const ResponsiveBody(
                             "Register",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                            color: Colors.white,
                           ),
                         ),
-                  const SizedBox(height: 15),
+                  SizedBox(height: responsiveSpacing),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, '/login');

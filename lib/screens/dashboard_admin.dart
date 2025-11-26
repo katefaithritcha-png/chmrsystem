@@ -9,14 +9,14 @@ import '../services/dashboard_service.dart';
 import '../models/dashboard_models.dart';
 import '../widgets/creative_dashboard.dart';
 import '../widgets/curvy_bottom_nav.dart';
+import '../core/responsive/responsive_helper.dart';
 
 class DashboardAdmin extends StatelessWidget {
   const DashboardAdmin({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isMobile = width < 800;
+    final isMobile = ResponsiveHelper.isMobile(context);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(

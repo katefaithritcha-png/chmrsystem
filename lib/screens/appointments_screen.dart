@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/appointment_service.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -45,6 +47,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   Widget build(BuildContext context) {
     final service = context.watch<AppointmentService>();
     final items = service.items;
+    final responsivePadding = ResponsiveHelper.getResponsivePadding(context);
+    final responsiveSpacing = ResponsiveHelper.getResponsiveSpacing(context);
+
     final filtered = items.where((e) {
       switch (_filter) {
         case 'Pending':
@@ -60,7 +65,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointments'),
+        title: const ResponsiveHeading2('Appointments'),
         actions: [
           IconButton(
             tooltip: 'New appointment',
@@ -82,9 +87,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: responsivePadding,
             child: Wrap(
-              spacing: 8,
+              spacing: responsiveSpacing,
               children: [
                 for (final f in const [
                   'All',
@@ -103,7 +108,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           const Divider(height: 1),
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: responsivePadding,
               itemBuilder: (_, i) {
                 final it = filtered[i];
                 return ListTile(
