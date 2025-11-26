@@ -13,7 +13,7 @@ class AppButton extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   const AppButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
@@ -23,7 +23,7 @@ class AppButton extends StatelessWidget {
     this.textStyle,
     this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +37,9 @@ class AppButton extends StatelessWidget {
             borderRadius: borderRadius ?? BorderRadius.circular(12),
           ),
           padding: padding,
+          elevation: 2,
+          shadowColor:
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
         ),
         child: isLoading
             ? SizedBox(
@@ -53,7 +56,8 @@ class AppButton extends StatelessWidget {
                 label,
                 style: textStyle ??
                     Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
                         ),
               ),
       ),
@@ -74,7 +78,7 @@ class AppOutlinedButton extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   const AppOutlinedButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
@@ -84,7 +88,7 @@ class AppOutlinedButton extends StatelessWidget {
     this.textStyle,
     this.borderColor,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +100,12 @@ class AppOutlinedButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           side: BorderSide(
             color: borderColor ?? Theme.of(context).colorScheme.primary,
+            width: 2,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius ?? BorderRadius.circular(12),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         ),
         child: isLoading
             ? SizedBox(
@@ -132,23 +138,27 @@ class AppTextButton extends StatelessWidget {
   final Color? textColor;
 
   const AppTextButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.textStyle,
     this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
       child: Text(
-        label,
+        label.toUpperCase(),
         style: textStyle ??
             Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: textColor ?? Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
                 ),
       ),
     );
