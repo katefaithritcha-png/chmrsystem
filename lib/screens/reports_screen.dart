@@ -7,6 +7,8 @@ import '../services/reports_service.dart';
 import '../models/common_models.dart';
 import 'report_detail_screen.dart';
 import '../services/inventory_service.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -162,9 +164,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsivePadding = ResponsiveHelper.getResponsivePadding(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reports'),
+        title: const ResponsiveHeading2('Reports'),
         actions: [
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -223,7 +227,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   .toList();
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: responsivePadding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

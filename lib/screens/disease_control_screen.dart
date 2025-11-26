@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DiseaseControlScreen extends StatelessWidget {
@@ -36,19 +38,23 @@ class DiseaseControlScreen extends StatelessWidget {
                   },
                 );
                 if (isMobile) {
-                  return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [kpi]);
+                  return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [kpi]);
                 }
                 return Row(children: [kpi]);
               },
             ),
             const SizedBox(height: 16),
             Container(
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Recent Activities', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Recent Activities',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                     stream: FirebaseFirestore.instance
@@ -58,14 +64,17 @@ class DiseaseControlScreen extends StatelessWidget {
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
-                        return const Text('Failed to load', style: TextStyle(color: Colors.black54));
+                        return const Text('Failed to load',
+                            style: TextStyle(color: Colors.black54));
                       }
                       if (!snapshot.hasData) {
-                        return const Text('Loading...', style: TextStyle(color: Colors.black54));
+                        return const Text('Loading...',
+                            style: TextStyle(color: Colors.black54));
                       }
                       final docs = snapshot.data!.docs;
                       if (docs.isEmpty) {
-                        return const Text('No activities yet', style: TextStyle(color: Colors.black54));
+                        return const Text('No activities yet',
+                            style: TextStyle(color: Colors.black54));
                       }
                       return ListView.separated(
                         shrinkWrap: true,
@@ -77,7 +86,8 @@ class DiseaseControlScreen extends StatelessWidget {
                           final t = (d['title'] ?? 'Activity') as String;
                           final sub = (d['subtitle'] ?? '') as String;
                           return ListTile(
-                            leading: Icon(Icons.biotech_outlined, color: Theme.of(context).colorScheme.primary),
+                            leading: Icon(Icons.biotech_outlined,
+                                color: Theme.of(context).colorScheme.primary),
                             title: Text(t),
                             subtitle: Text(sub),
                           );
@@ -122,9 +132,14 @@ class _Kpi extends StatelessWidget {
         Expanded(
           child: Text.rich(
             TextSpan(children: [
-              TextSpan(text: value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.1)),
+              TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold, height: 1.1)),
               const TextSpan(text: ' '),
-              TextSpan(text: label, style: const TextStyle(color: Colors.black54, fontSize: 14)),
+              TextSpan(
+                  text: label,
+                  style: const TextStyle(color: Colors.black54, fontSize: 14)),
             ]),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

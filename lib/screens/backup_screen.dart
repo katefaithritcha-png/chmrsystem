@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -65,17 +67,20 @@ class _BackupScreenState extends State<BackupScreen> {
     final f = File(path);
     await f.writeAsBytes(bytes, flush: true);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Saved: $path')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Saved: $path')));
   }
 
   Future<List<Map<String, dynamic>>> _fetchCollection(String name) async {
     Query<Map<String, dynamic>> q = _db.collection(name);
     // Try common timestamp fields for date filtering
     if (_start != null) {
-      q = q.where(_tsField(name), isGreaterThanOrEqualTo: Timestamp.fromDate(_start!));
+      q = q.where(_tsField(name),
+          isGreaterThanOrEqualTo: Timestamp.fromDate(_start!));
     }
     if (_end != null) {
-      q = q.where(_tsField(name), isLessThanOrEqualTo: Timestamp.fromDate(_end!));
+      q = q.where(_tsField(name),
+          isLessThanOrEqualTo: Timestamp.fromDate(_end!));
     }
     final snap = await q.limit(2000).get();
     return snap.docs.map((d) => {'id': d.id, ...d.data()}).toList();
@@ -90,7 +95,10 @@ class _BackupScreenState extends State<BackupScreen> {
 
   Future<void> _exportJson() async {
     if (_busy) return;
-    setState(() { _busy = true; _status = 'Exporting JSON...'; });
+    setState(() {
+      _busy = true;
+      _status = 'Exporting JSON...';
+    });
     try {
       final out = <String, dynamic>{
         'generatedAt': DateTime.now().toIso8601String(),
@@ -104,21 +112,35 @@ class _BackupScreenState extends State<BackupScreen> {
         final rows = await _fetchCollection(c);
         out['data'][c] = rows;
       }
-      final bytes = utf8.encode(const JsonEncoder.withIndent('  ').convert(out));
+      final bytes =
+          utf8.encode(const JsonEncoder.withIndent('  ').convert(out));
       final fname = 'backup_${DateTime.now().millisecondsSinceEpoch}.json';
       await _saveBytes(Uint8List.fromList(bytes), fname);
-      setState(() { _status = 'Exported $fname'; });
-      await AuditService().addEvent(actorRole: 'admin', actorId: 'admin', action: 'backup_export', details: 'collections=${_selected.join(',')}');
+      setState(() {
+        _status = 'Exported $fname';
+      });
+      await AuditService().addEvent(
+          actorRole: 'admin',
+          actorId: 'admin',
+          action: 'backup_export',
+          details: 'collections=${_selected.join(',')}');
     } catch (e) {
-      setState(() { _status = 'Export failed: $e'; });
+      setState(() {
+        _status = 'Export failed: $e';
+      });
     } finally {
-      setState(() { _busy = false; });
+      setState(() {
+        _busy = false;
+      });
     }
   }
 
   Future<void> _exportCsv() async {
     if (_busy) return;
-    setState(() { _busy = true; _status = 'Exporting CSV...'; });
+    setState(() {
+      _busy = true;
+      _status = 'Exporting CSV...';
+    });
     try {
       for (final c in _selected) {
         final rows = await _fetchCollection(c);
@@ -130,15 +152,26 @@ class _BackupScreenState extends State<BackupScreen> {
           buf.writeln(headers.map((h) => _csvEscape(r[h])).join(','));
         }
         final bytes = utf8.encode(buf.toString());
-        final fname = 'backup_${c}_${DateTime.now().millisecondsSinceEpoch}.csv';
+        final fname =
+            'backup_${c}_${DateTime.now().millisecondsSinceEpoch}.csv';
         await _saveBytes(Uint8List.fromList(bytes), fname);
       }
-      setState(() { _status = 'CSV export complete'; });
-      await AuditService().addEvent(actorRole: 'admin', actorId: 'admin', action: 'backup_export_csv', details: 'collections=${_selected.join(',')}');
+      setState(() {
+        _status = 'CSV export complete';
+      });
+      await AuditService().addEvent(
+          actorRole: 'admin',
+          actorId: 'admin',
+          action: 'backup_export_csv',
+          details: 'collections=${_selected.join(',')}');
     } catch (e) {
-      setState(() { _status = 'Export failed: $e'; });
+      setState(() {
+        _status = 'Export failed: $e';
+      });
     } finally {
-      setState(() { _busy = false; });
+      setState(() {
+        _busy = false;
+      });
     }
   }
 
@@ -161,22 +194,31 @@ class _BackupScreenState extends State<BackupScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Import JSON', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Import JSON',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButton<String>(
                 value: _importTarget,
-                items: _collections.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                onChanged: (v) => setState(() => _importTarget = v ?? _importTarget),
+                items: _collections
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (v) =>
+                    setState(() => _importTarget = v ?? _importTarget),
               ),
               Row(children: [
-                Checkbox(value: _dryRun, onChanged: (v) => setState(() => _dryRun = v ?? true)),
+                Checkbox(
+                    value: _dryRun,
+                    onChanged: (v) => setState(() => _dryRun = v ?? true)),
                 const Text('Dry-run (no writes)'),
               ]),
               TextField(
                 controller: _importJsonCtrl,
                 minLines: 6,
                 maxLines: 12,
-                decoration: const InputDecoration(hintText: 'Paste JSON array of documents, e.g. [{"id":"...","field":"value"}]', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    hintText:
+                        'Paste JSON array of documents, e.g. [{"id":"...","field":"value"}]',
+                    border: OutlineInputBorder()),
               ),
               const SizedBox(height: 12),
               Align(
@@ -197,16 +239,22 @@ class _BackupScreenState extends State<BackupScreen> {
   Future<void> _import() async {
     final data = _importJsonCtrl.text.trim();
     if (data.isEmpty) return;
-    setState(() { _busy = true; _status = 'Parsing import...'; });
+    setState(() {
+      _busy = true;
+      _status = 'Parsing import...';
+    });
     try {
       final parsed = json.decode(data);
       if (parsed is! List) {
-        setState(() { _status = 'JSON must be an array of documents'; });
+        setState(() {
+          _status = 'JSON must be an array of documents';
+        });
         return;
       }
       final docs = parsed.cast<dynamic>();
       // Preview errors
-      int ok = 0; int bad = 0;
+      int ok = 0;
+      int bad = 0;
       for (final d in docs) {
         if (d is Map && d.containsKey('id')) {
           ok++;
@@ -215,19 +263,26 @@ class _BackupScreenState extends State<BackupScreen> {
         }
       }
       if (_dryRun) {
-        setState(() { _status = 'Dry-run: $ok valid, $bad invalid'; });
+        setState(() {
+          _status = 'Dry-run: $ok valid, $bad invalid';
+        });
         return;
       }
       // Write in batches
-      setState(() { _status = 'Writing $ok docs to $_importTarget...'; });
+      setState(() {
+        _status = 'Writing $ok docs to $_importTarget...';
+      });
       WriteBatch batch = _db.batch();
-      int count = 0; int wrote = 0;
+      int count = 0;
+      int wrote = 0;
       for (final d in docs) {
         if (d is! Map || !d.containsKey('id')) continue;
         final id = d['id'] as String;
         final dataMap = Map<String, dynamic>.from(d)..remove('id');
-        batch.set(_db.collection(_importTarget).doc(id), dataMap, SetOptions(merge: true));
-        count++; wrote++;
+        batch.set(_db.collection(_importTarget).doc(id), dataMap,
+            SetOptions(merge: true));
+        count++;
+        wrote++;
         if (count >= 400) {
           await batch.commit();
           batch = _db.batch();
@@ -235,12 +290,22 @@ class _BackupScreenState extends State<BackupScreen> {
         }
       }
       if (count > 0) await batch.commit();
-      setState(() { _status = 'Import complete: wrote $wrote docs.'; });
-      await AuditService().addEvent(actorRole: 'admin', actorId: 'admin', action: 'backup_import', details: 'target=$_importTarget wrote=$wrote');
+      setState(() {
+        _status = 'Import complete: wrote $wrote docs.';
+      });
+      await AuditService().addEvent(
+          actorRole: 'admin',
+          actorId: 'admin',
+          action: 'backup_import',
+          details: 'target=$_importTarget wrote=$wrote');
     } catch (e) {
-      setState(() { _status = 'Import failed: $e'; });
+      setState(() {
+        _status = 'Import failed: $e';
+      });
     } finally {
-      setState(() { _busy = false; });
+      setState(() {
+        _busy = false;
+      });
     }
   }
 
@@ -254,7 +319,8 @@ class _BackupScreenState extends State<BackupScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Collections selection
-            const Text('Collections', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Collections',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -278,18 +344,23 @@ class _BackupScreenState extends State<BackupScreen> {
             ),
             const SizedBox(height: 16),
             // Date range
-            const Text('Date Range (optional)', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Date Range (optional)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(children: [
               OutlinedButton.icon(
                 icon: const Icon(Icons.date_range),
-                label: Text(_start == null ? 'Start date' : _start!.toIso8601String().substring(0,10)),
+                label: Text(_start == null
+                    ? 'Start date'
+                    : _start!.toIso8601String().substring(0, 10)),
                 onPressed: () => _pickDate(isStart: true),
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(
                 icon: const Icon(Icons.date_range),
-                label: Text(_end == null ? 'End date' : _end!.toIso8601String().substring(0,10)),
+                label: Text(_end == null
+                    ? 'End date'
+                    : _end!.toIso8601String().substring(0, 10)),
                 onPressed: () => _pickDate(isStart: false),
               ),
             ]),
@@ -316,10 +387,12 @@ class _BackupScreenState extends State<BackupScreen> {
             ]),
             const SizedBox(height: 12),
             if (_busy) const LinearProgressIndicator(minHeight: 2),
-            if (_status != null) Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(_status!, style: const TextStyle(color: Colors.black87)),
-            ),
+            if (_status != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(_status!,
+                    style: const TextStyle(color: Colors.black87)),
+              ),
           ],
         ),
       ),

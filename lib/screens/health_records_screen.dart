@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart' as app_auth;
 import '../services/health_record_service.dart';
@@ -28,15 +30,19 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: title, decoration: const InputDecoration(labelText: 'Title')),
+              TextField(
+                  controller: title,
+                  decoration: const InputDecoration(labelText: 'Title')),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: type,
                 items: const [
-                  DropdownMenuItem(value: 'Consultation', child: Text('Consultation')),
+                  DropdownMenuItem(
+                      value: 'Consultation', child: Text('Consultation')),
                   DropdownMenuItem(value: 'Lab', child: Text('Lab')),
                   DropdownMenuItem(value: 'Imaging', child: Text('Imaging')),
-                  DropdownMenuItem(value: 'Medication', child: Text('Medication')),
+                  DropdownMenuItem(
+                      value: 'Medication', child: Text('Medication')),
                 ],
                 onChanged: (v) => type = v ?? type,
                 decoration: const InputDecoration(labelText: 'Type'),
@@ -47,7 +53,9 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.event),
-                      label: Text(date == null ? 'Pick date' : '${date!.year}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}'),
+                      label: Text(date == null
+                          ? 'Pick date'
+                          : '${date!.year}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}'),
                       onPressed: () async {
                         final now = DateTime.now();
                         final picked = await showDatePicker(
@@ -75,8 +83,12 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Add')),
         ],
       ),
     );
@@ -104,15 +116,19 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: title, decoration: const InputDecoration(labelText: 'Title')),
+              TextField(
+                  controller: title,
+                  decoration: const InputDecoration(labelText: 'Title')),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: type,
                 items: const [
-                  DropdownMenuItem(value: 'Consultation', child: Text('Consultation')),
+                  DropdownMenuItem(
+                      value: 'Consultation', child: Text('Consultation')),
                   DropdownMenuItem(value: 'Lab', child: Text('Lab')),
                   DropdownMenuItem(value: 'Imaging', child: Text('Imaging')),
-                  DropdownMenuItem(value: 'Medication', child: Text('Medication')),
+                  DropdownMenuItem(
+                      value: 'Medication', child: Text('Medication')),
                 ],
                 onChanged: (v) => type = v ?? type,
                 decoration: const InputDecoration(labelText: 'Type'),
@@ -123,7 +139,9 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.event),
-                      label: Text(date == null ? 'Pick date' : '${date!.year}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}'),
+                      label: Text(date == null
+                          ? 'Pick date'
+                          : '${date!.year}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}'),
                       onPressed: () async {
                         final now = DateTime.now();
                         final picked = await showDatePicker(
@@ -151,8 +169,12 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Save')),
         ],
       ),
     );
@@ -174,8 +196,12 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
         title: const Text('Delete Record'),
         content: const Text('Are you sure you want to delete this record?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Delete')),
         ],
       ),
     );
@@ -189,7 +215,9 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
     final role = context.watch<app_auth.AuthProvider>().role ?? 'patient';
     final isPatient = role == 'patient';
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    final stream = isPatient ? _service.streamMyRecords(limit: 300) : _service.streamAllRecords(limit: 300);
+    final stream = isPatient
+        ? _service.streamMyRecords(limit: 300)
+        : _service.streamAllRecords(limit: 300);
 
     return Scaffold(
       appBar: AppBar(
@@ -212,10 +240,17 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
               context: context,
               builder: (ctx) => AlertDialog(
                 title: const Text('Target Patient UID'),
-                content: TextField(controller: pidCtrl, decoration: const InputDecoration(labelText: 'Patient UID')),
+                content: TextField(
+                    controller: pidCtrl,
+                    decoration:
+                        const InputDecoration(labelText: 'Patient UID')),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                  ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Continue')),
+                  TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Cancel')),
+                  ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Continue')),
                 ],
               ),
             );
@@ -250,11 +285,15 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
               final notes = (data['notes'] ?? '') as String;
               final ts = (data['date'] as Timestamp?)?.toDate();
               final patientId = (data['patientId'] ?? '') as String;
-              final canEditOrDelete = (!isPatient) || (patientId.isNotEmpty && patientId == uid);
+              final canEditOrDelete =
+                  (!isPatient) || (patientId.isNotEmpty && patientId == uid);
               return ListTile(
-                leading: Icon(Icons.folder, color: Theme.of(context).colorScheme.primary),
+                leading: Icon(Icons.folder,
+                    color: Theme.of(context).colorScheme.primary),
                 title: Text(title),
-                subtitle: Text('${type.isNotEmpty ? '$type • ' : ''}${ts != null ? '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')}' : ''}\n$notes'.trim()),
+                subtitle: Text(
+                    '${type.isNotEmpty ? '$type • ' : ''}${ts != null ? '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')}' : ''}\n$notes'
+                        .trim()),
                 isThreeLine: notes.isNotEmpty,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -265,9 +304,13 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> {
                         child: const Icon(Icons.badge),
                       ),
                     if (canEditOrDelete)
-                      IconButton(icon: const Icon(Icons.edit), onPressed: () => _editRecord(d.id, data)),
+                      IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _editRecord(d.id, data)),
                     if (canEditOrDelete)
-                      IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => _deleteRecord(d.id)),
+                      IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteRecord(d.id)),
                   ],
                 ),
               );

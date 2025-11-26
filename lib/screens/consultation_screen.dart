@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously, duplicate_ignore
 
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import '../services/consultation_service.dart';
 
 class ConsultationScreen extends StatelessWidget {
@@ -340,55 +342,56 @@ void _showQueueActions(BuildContext context, Map<String, Object> item) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          ListTile(
-            leading: const Icon(Icons.play_arrow),
-            title: const Text('Start consultation'),
-            onTap: () {
-              Navigator.pop(ctx);
-              Navigator.pushNamed(context, '/consultation/new');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Open patient record'),
-            onTap: () {
-              Navigator.pop(ctx);
-              Navigator.pushNamed(context, '/patients');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.schedule),
-            title: const Text('Reschedule'),
-            onTap: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Rescheduled')),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.remove_circle_outline, color: Colors.red),
-            title: const Text('Remove from queue',
-                style: TextStyle(color: Colors.red)),
-            onTap: () async {
-              Navigator.pop(ctx);
-              try {
-                await ConsultationService()
-                    .removeFromQueue(item['docId'] as String);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Removed from queue')),
-                  );
+            ListTile(
+              leading: const Icon(Icons.play_arrow),
+              title: const Text('Start consultation'),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, '/consultation/new');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Open patient record'),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, '/patients');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.schedule),
+              title: const Text('Reschedule'),
+              onTap: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Rescheduled')),
+                );
+              },
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.remove_circle_outline, color: Colors.red),
+              title: const Text('Remove from queue',
+                  style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                Navigator.pop(ctx);
+                try {
+                  await ConsultationService()
+                      .removeFromQueue(item['docId'] as String);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Removed from queue')),
+                    );
+                  }
+                } catch (err) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed: $err')),
+                    );
+                  }
                 }
-              } catch (err) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed: $err')),
-                  );
-                }
-              }
-            },
-          ),
+              },
+            ),
           ],
         ),
       ),
@@ -411,24 +414,24 @@ void _showTodayDone(BuildContext context, List<Map<String, Object>> recent) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          const Text('Today Done',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          ...recent.map((e) => ListTile(
-                leading:
-                    const Icon(Icons.check_circle_outline, color: Colors.green),
-                title: Text('${e['name']} (${e['id']})'),
-                subtitle: Text('Dx: ${e['dx']} • ${e['when']}'),
-                trailing: TextButton.icon(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _showVisitSummary(context, e);
-                  },
-                  icon: const Icon(Icons.description_outlined),
-                  label: const Text('Chart'),
-                ),
-              )),
-        ],
+              const Text('Today Done',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ...recent.map((e) => ListTile(
+                    leading: const Icon(Icons.check_circle_outline,
+                        color: Colors.green),
+                    title: Text('${e['name']} (${e['id']})'),
+                    subtitle: Text('Dx: ${e['dx']} • ${e['when']}'),
+                    trailing: TextButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _showVisitSummary(context, e);
+                      },
+                      icon: const Icon(Icons.description_outlined),
+                      label: const Text('Chart'),
+                    ),
+                  )),
+            ],
           ),
         ),
       ),
@@ -451,37 +454,37 @@ void _showVisitSummary(BuildContext context, Map<String, Object> item) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Consultation Summary',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(ctx)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Consultation Summary',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text('${item['name']} (${item['id']})'),
+              const SizedBox(height: 6),
+              Text('Dx: ${item['dx'] ?? '—'}'),
+              const SizedBox(height: 6),
+              Text('${item['when'] ?? ''}'),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Chart opened')),
+                    );
+                  },
+                  icon: const Icon(Icons.description_outlined),
+                  label: const Text('Open full chart'),
+                ),
+              )
             ],
-          ),
-          const SizedBox(height: 8),
-          Text('${item['name']} (${item['id']})'),
-          const SizedBox(height: 6),
-          Text('Dx: ${item['dx'] ?? '—'}'),
-          const SizedBox(height: 6),
-          Text('${item['when'] ?? ''}'),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Chart opened')),
-                );
-              },
-              icon: const Icon(Icons.description_outlined),
-              label: const Text('Open full chart'),
-            ),
-          )
-        ],
           ),
         ),
       ),
@@ -555,48 +558,51 @@ void _showInProgress(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          const Text('In Progress',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          FutureBuilder<List<Map<String, Object>>>(
-            future: ConsultationService().fetchInProgressOnce(),
-            builder: (c, snap) {
-              if (snap.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child:
-                      Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                );
-              }
-              if (snap.hasError) {
-                return const Text('Failed to load in-progress consultations');
-              }
-              final list = snap.data ?? const [];
-              if (list.isEmpty) {
-                return const Text('No consultations in progress.');
-              }
-              return Column(
-                children: list
-                    .map((e) => ListTile(
-                          leading: const Icon(Icons.person_outline,
-                              color: Colors.blue),
-                          title: Text('${e['name']} (${e['id']})'),
-                          subtitle: Text('${e['reason']} • ${e['started']}'),
-                          trailing: TextButton.icon(
-                            onPressed: () {
-                              Navigator.pop(ctx);
-                              Navigator.pushNamed(context, '/consultation/new',
-                                  arguments: {'docId': e['docId']});
-                            },
-                            icon: const Icon(Icons.open_in_new),
-                            label: const Text('Resume'),
-                          ),
-                        ))
-                    .toList(),
-              );
-            },
-          ),
-        ],
+              const Text('In Progress',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              FutureBuilder<List<Map<String, Object>>>(
+                future: ConsultationService().fetchInProgressOnce(),
+                builder: (c, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2)),
+                    );
+                  }
+                  if (snap.hasError) {
+                    return const Text(
+                        'Failed to load in-progress consultations');
+                  }
+                  final list = snap.data ?? const [];
+                  if (list.isEmpty) {
+                    return const Text('No consultations in progress.');
+                  }
+                  return Column(
+                    children: list
+                        .map((e) => ListTile(
+                              leading: const Icon(Icons.person_outline,
+                                  color: Colors.blue),
+                              title: Text('${e['name']} (${e['id']})'),
+                              subtitle:
+                                  Text('${e['reason']} • ${e['started']}'),
+                              trailing: TextButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  Navigator.pushNamed(
+                                      context, '/consultation/new',
+                                      arguments: {'docId': e['docId']});
+                                },
+                                icon: const Icon(Icons.open_in_new),
+                                label: const Text('Resume'),
+                              ),
+                            ))
+                        .toList(),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

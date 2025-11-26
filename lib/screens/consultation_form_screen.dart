@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import '../services/consultation_service.dart';
 
 class ConsultationFormScreen extends StatelessWidget {
@@ -13,8 +15,12 @@ class ConsultationFormScreen extends StatelessWidget {
 
     Future<void> save() async {
       final args = ModalRoute.of(context)?.settings.arguments;
-      final id = (args is Map && args['docId'] is String) ? args['docId'] as String : null;
-      final dx = assessmentCtrl.text.trim().isEmpty ? 'N/A' : assessmentCtrl.text.trim();
+      final id = (args is Map && args['docId'] is String)
+          ? args['docId'] as String
+          : null;
+      final dx = assessmentCtrl.text.trim().isEmpty
+          ? 'N/A'
+          : assessmentCtrl.text.trim();
       try {
         if (id != null) {
           await ConsultationService().completeConsultation(
@@ -51,25 +57,52 @@ class ConsultationFormScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Chief Complaint', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Chief Complaint',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            TextField(controller: complaintCtrl, minLines: 1, maxLines: 3, decoration: const InputDecoration(border: OutlineInputBorder())),
+            TextField(
+                controller: complaintCtrl,
+                minLines: 1,
+                maxLines: 3,
+                decoration:
+                    const InputDecoration(border: OutlineInputBorder())),
             const SizedBox(height: 12),
             const Text('Vitals', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            TextField(controller: vitalsCtrl, minLines: 1, maxLines: 3, decoration: const InputDecoration(hintText: 'BP, HR, Temp, RR', border: OutlineInputBorder())),
+            TextField(
+                controller: vitalsCtrl,
+                minLines: 1,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                    hintText: 'BP, HR, Temp, RR',
+                    border: OutlineInputBorder())),
             const SizedBox(height: 12),
-            const Text('Assessment', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Assessment',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            TextField(controller: assessmentCtrl, minLines: 2, maxLines: 5, decoration: const InputDecoration(border: OutlineInputBorder())),
+            TextField(
+                controller: assessmentCtrl,
+                minLines: 2,
+                maxLines: 5,
+                decoration:
+                    const InputDecoration(border: OutlineInputBorder())),
             const SizedBox(height: 12),
-            const Text('Plan/Orders', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Plan/Orders',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            TextField(controller: planCtrl, minLines: 2, maxLines: 5, decoration: const InputDecoration(border: OutlineInputBorder())),
+            TextField(
+                controller: planCtrl,
+                minLines: 2,
+                maxLines: 5,
+                decoration:
+                    const InputDecoration(border: OutlineInputBorder())),
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(onPressed: save, icon: const Icon(Icons.save), label: const Text('Save')),
+              child: ElevatedButton.icon(
+                  onPressed: save,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save')),
             ),
           ],
         ),

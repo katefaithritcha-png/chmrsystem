@@ -1,6 +1,8 @@
 // ignore_for_file: invalid_use_of_protected_member, prefer_const_declarations, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';

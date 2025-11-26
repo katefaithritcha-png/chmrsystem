@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 import '../services/immunization_service.dart';
 
 class ImmunizationScreen extends StatefulWidget {
@@ -99,7 +101,12 @@ class _ImmunizationScreenState extends State<ImmunizationScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  for (final cat in const ['All', 'Infant', 'Measles/MMR', 'Adult']) ...[
+                  for (final cat in const [
+                    'All',
+                    'Infant',
+                    'Measles/MMR',
+                    'Adult'
+                  ]) ...[
                     ChoiceChip(
                       label: Text(cat),
                       selected: _vaxCat == cat,
@@ -121,7 +128,8 @@ class _ImmunizationScreenState extends State<ImmunizationScreen> {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Due/Upcoming', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Due/Upcoming',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
                   Text('No items available.'),
                 ],
@@ -137,7 +145,8 @@ class _ImmunizationScreenState extends State<ImmunizationScreen> {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Recent Vaccinations', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Recent Vaccinations',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
                   Text('No recent records.'),
                 ],
@@ -218,19 +227,23 @@ void _showMissedFollowUps(BuildContext context) {
               final items = snap.data ?? const [];
               if (items.isEmpty) return const Text('No missed follow-ups.');
               return Column(
-                children: items.map((e) => ListTile(
-                  leading: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                  title: Text('${e['patientName']} (${e['patientId']})'),
-                  subtitle: Text('${e['detail']} • Due: ${e['due']}'),
-                  trailing: TextButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.pushNamed(context, '/patients');
-                    },
-                    icon: const Icon(Icons.schedule),
-                    label: const Text('Follow-up'),
-                  ),
-                )).toList(),
+                children: items
+                    .map((e) => ListTile(
+                          leading: const Icon(Icons.warning_amber_rounded,
+                              color: Colors.orange),
+                          title:
+                              Text('${e['patientName']} (${e['patientId']})'),
+                          subtitle: Text('${e['detail']} • Due: ${e['due']}'),
+                          trailing: TextButton.icon(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              Navigator.pushNamed(context, '/patients');
+                            },
+                            icon: const Icon(Icons.schedule),
+                            label: const Text('Follow-up'),
+                          ),
+                        ))
+                    .toList(),
               );
             },
           ),

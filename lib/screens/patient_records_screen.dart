@@ -8,6 +8,8 @@ import '../services/consultation_service.dart';
 import '../services/appointment_service.dart';
 import '../models/common_models.dart';
 import 'checkup_results_form.dart';
+import '../core/responsive/responsive_helper.dart';
+import '../core/responsive/responsive_text.dart';
 
 class PatientRecordsScreen extends StatefulWidget {
   const PatientRecordsScreen({super.key});
@@ -357,9 +359,11 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
   Widget build(BuildContext context) {
     final role = context.read<AuthProvider?>()?.role ?? 'patient';
     final isPatient = role == 'patient';
+    final responsivePadding = ResponsiveHelper.getResponsivePadding(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patient Records'),
+        title: const ResponsiveHeading2('Patient Records'),
         actions: [
           IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
           PopupMenuButton<String>(
@@ -490,6 +494,7 @@ class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
           Widget buildList(List<PatientRecord> list, bool grid) {
             if (!grid) {
               return ListView.separated(
+                padding: responsivePadding,
                 itemCount: list.length,
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (context, i) {
