@@ -152,8 +152,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (k.contains('approval')) return _programs.contains('Approvals');
     if (k.contains('immun')) return _programs.contains('Immunizations');
     if (k.contains('notification')) return _programs.contains('Notifications');
-    if (k.contains('message') || k.contains('unread'))
+    if (k.contains('message') || k.contains('unread')) {
       return _programs.contains('Messages');
+    }
     if (k.contains('audit')) return _programs.contains('Audit');
     if (k.contains('backup')) return _programs.contains('Backups');
     if (k.contains('outbreak')) return _programs.contains('Outbreak');

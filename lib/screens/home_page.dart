@@ -90,9 +90,9 @@ class ResponsiveCaption extends StatelessWidget {
 
   const ResponsiveCaption(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

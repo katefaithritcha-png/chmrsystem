@@ -11,14 +11,14 @@ class ResponsiveGrid extends StatelessWidget {
   final int? desktopColumns;
 
   const ResponsiveGrid({
-    Key? key,
+    super.key,
     required this.children,
     this.padding = const EdgeInsets.all(16),
     this.spacing = 16,
     this.mobileColumns = 1,
     this.tabletColumns = 2,
     this.desktopColumns = 3,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +71,12 @@ class ResponsiveList extends StatelessWidget {
   final ScrollPhysics physics;
 
   const ResponsiveList({
-    Key? key,
+    super.key,
     required this.children,
     this.padding = const EdgeInsets.all(16),
     this.spacing = 12,
     this.physics = const ScrollPhysics(),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,12 +101,12 @@ class ResponsiveRow extends StatelessWidget {
   final double spacing;
 
   const ResponsiveRow({
-    Key? key,
+    super.key,
     required this.children,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.spacing = 12,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,13 +147,13 @@ class ResponsiveContainer extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   const ResponsiveContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.maxWidth,
     this.padding = const EdgeInsets.all(16),
     this.backgroundColor,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -184,11 +184,11 @@ class ResponsiveSpacer extends StatelessWidget {
   final double? desktopHeight;
 
   const ResponsiveSpacer({
-    Key? key,
+    super.key,
     this.mobileHeight = 16,
     this.tabletHeight = 20,
     this.desktopHeight = 24,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -205,12 +205,12 @@ class ResponsiveDivider extends StatelessWidget {
   final double? endIndent;
 
   const ResponsiveDivider({
-    Key? key,
+    super.key,
     this.thickness,
     this.color,
     this.indent,
     this.endIndent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

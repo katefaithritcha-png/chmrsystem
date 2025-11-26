@@ -330,7 +330,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red, size: 20),
+                      const Icon(Icons.error_outline,
+                          color: Colors.red, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(

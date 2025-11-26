@@ -23,7 +23,7 @@ class AppTextField extends StatefulWidget {
   final TextCapitalization textCapitalization;
 
   const AppTextField({
-    Key? key,
+    super.key,
     this.label,
     this.hint,
     this.initialValue,
@@ -43,7 +43,7 @@ class AppTextField extends StatefulWidget {
     this.errorText,
     this.showCharacterCount = false,
     this.textCapitalization = TextCapitalization.none,
-  }) : super(key: key);
+  });
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
