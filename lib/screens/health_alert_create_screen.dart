@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/auth_provider.dart';

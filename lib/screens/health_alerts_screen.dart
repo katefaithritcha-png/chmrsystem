@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import '../services/health_alerts_service.dart';
 
 class HealthAlertsScreen extends StatefulWidget {

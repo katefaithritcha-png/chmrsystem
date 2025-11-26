@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import '../models/medicine.dart';

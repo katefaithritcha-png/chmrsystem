@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import '../services/audit_service.dart';

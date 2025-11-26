@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import '../services/immunization_service.dart';
 
 class ImmunizationScreen extends StatefulWidget {

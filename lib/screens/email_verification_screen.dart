@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import 'dart:async';
 import '../services/email_verification_service.dart';
 import '../core/exceptions/app_exceptions.dart';

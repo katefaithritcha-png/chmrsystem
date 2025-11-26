@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, duplicate_ignore
 
 import 'package:flutter/material.dart';
-import '../core/responsive/responsive_helper.dart';
-import '../core/responsive/responsive_text.dart';
 import '../services/consultation_service.dart';
 
 class ConsultationScreen extends StatelessWidget {
