@@ -1,15 +1,31 @@
 import 'dart:math';
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import '../core/logging/app_logger.dart';
 import '../core/exceptions/app_exceptions.dart';
 
-/// Service for handling email verification with OTP codes
+/// Model for storing verification data in-memory
+class _VerificationData {
+  final String code;
+  final DateTime expiresAt;
+  int attempts;
+  bool verified;
+
+  _VerificationData({
+    required this.code,
+    required this.expiresAt,
+    this.attempts = 0,
+    this.verified = false,
+  });
+}
+
+/// Service for handling email verification with OTP codes sent via Gmail/Resend
 class EmailVerificationService {
   static final EmailVerificationService _instance =
       EmailVerificationService._internal();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  /// In-memory storage for verification codes (no Firestore)
+  final Map<String, _VerificationData> _verificationCodes = {};
 
   factory EmailVerificationService() {
     return _instance;
@@ -23,40 +39,35 @@ class EmailVerificationService {
     return (100000 + random.nextInt(900000)).toString();
   }
 
-  /// Send verification code to user's email via Mailgun
-  Future<String> sendVerificationCode(String email) async {
+  /// Send verification code to user's email via Resend API
+  Future<void> sendVerificationCode(String email) async {
     try {
       AppLogger.info('Generating verification code for: $email');
 
       // Generate 6-digit code
       final verificationCode = _generateVerificationCode();
 
-      // Store verification code in Firestore with expiry (10 minutes)
+      // Store verification code in in-memory storage with expiry (10 minutes)
       final expiryTime = DateTime.now().add(const Duration(minutes: 10));
-
-      await _firestore.collection('email_verifications').doc(email).set({
-        'email': email.toLowerCase(),
-        'code': verificationCode,
-        'createdAt': FieldValue.serverTimestamp(),
-        'expiresAt': Timestamp.fromDate(expiryTime),
-        'verified': false,
-        'attempts': 0,
-      }, SetOptions(merge: true));
+      _verificationCodes[email] = _VerificationData(
+        code: verificationCode,
+        expiresAt: expiryTime,
+        attempts: 0,
+        verified: false,
+      );
 
       AppLogger.info('Verification code generated and stored for: $email');
 
-      // Send email via Mailgun
+      // Send email via Resend API
       try {
-        await _sendVerificationEmailViaMailgun(email, verificationCode);
+        await _sendVerificationEmailViaResend(email, verificationCode);
         AppLogger.info('Verification email sent successfully to: $email');
       } catch (e) {
-        AppLogger.error('Failed to send verification email via Mailgun',
+        AppLogger.error('Failed to send verification email via Resend',
             error: e);
         // Log the code for debugging if email service fails
         AppLogger.debug('Verification code for $email: $verificationCode');
       }
-
-      return verificationCode;
     } catch (e, stackTrace) {
       AppLogger.error('Failed to send verification code',
           error: e, stackTrace: stackTrace);
@@ -67,8 +78,8 @@ class EmailVerificationService {
     }
   }
 
-  /// Send verification email via Resend API
-  Future<void> _sendVerificationEmailViaMailgun(
+  /// Send verification email via Resend API to Gmail
+  Future<void> _sendVerificationEmailViaResend(
       String email, String code) async {
     try {
       AppLogger.info('Sending verification email via Resend to: $email');
@@ -155,35 +166,28 @@ class EmailVerificationService {
     }
   }
 
-  /// Verify the code entered by user
+  /// Verify the code entered by user (from in-memory storage)
   Future<bool> verifyCode(String email, String code) async {
     try {
       AppLogger.info('Verifying code for: $email');
 
-      final doc =
-          await _firestore.collection('email_verifications').doc(email).get();
+      final verificationData = _verificationCodes[email];
 
-      if (!doc.exists) {
+      if (verificationData == null) {
         AppLogger.warning('No verification record found for: $email');
         throw NotFoundException(
           message: 'Verification code not found. Please request a new code.',
         );
       }
 
-      final data = doc.data()!;
-      final storedCode = data['code'] as String;
-      final expiresAt = (data['expiresAt'] as Timestamp).toDate();
-      final attempts = (data['attempts'] as int?) ?? 0;
-      final verified = (data['verified'] as bool?) ?? false;
-
       // Check if already verified
-      if (verified) {
+      if (verificationData.verified) {
         AppLogger.info('Email already verified: $email');
         return true;
       }
 
       // Check if code expired
-      if (DateTime.now().isAfter(expiresAt)) {
+      if (DateTime.now().isAfter(verificationData.expiresAt)) {
         AppLogger.warning('Verification code expired for: $email');
         throw ValidationException(
           message: 'Verification code has expired. Please request a new code.',
@@ -191,7 +195,7 @@ class EmailVerificationService {
       }
 
       // Check max attempts (5 attempts)
-      if (attempts >= 5) {
+      if (verificationData.attempts >= 5) {
         AppLogger.warning('Max verification attempts exceeded for: $email');
         throw ValidationException(
           message: 'Too many failed attempts. Please request a new code.',
@@ -199,22 +203,16 @@ class EmailVerificationService {
       }
 
       // Verify code
-      if (storedCode != code) {
+      if (verificationData.code != code) {
         AppLogger.warning('Invalid verification code for: $email');
-        // Increment attempts
-        await _firestore.collection('email_verifications').doc(email).update({
-          'attempts': attempts + 1,
-        });
+        verificationData.attempts++;
         throw ValidationException(
           message: 'Invalid verification code. Please try again.',
         );
       }
 
       // Code is valid, mark as verified
-      await _firestore.collection('email_verifications').doc(email).update({
-        'verified': true,
-        'verifiedAt': FieldValue.serverTimestamp(),
-      });
+      verificationData.verified = true;
 
       AppLogger.info('Email verified successfully: $email');
       return true;
@@ -229,33 +227,14 @@ class EmailVerificationService {
     }
   }
 
-  /// Check if email is verified
-  Future<bool> isEmailVerified(String email) async {
-    try {
-      final doc =
-          await _firestore.collection('email_verifications').doc(email).get();
-
-      if (!doc.exists) {
-        return false;
-      }
-
-      return (doc.data()?['verified'] as bool?) ?? false;
-    } catch (e) {
-      AppLogger.error('Error checking email verification', error: e);
-      return false;
-    }
-  }
-
   /// Resend verification code
-  Future<String> resendVerificationCode(String email) async {
+  Future<void> resendVerificationCode(String email) async {
     try {
       AppLogger.info('Resending verification code for: $email');
 
-      // Check if email exists in verifications
-      final doc =
-          await _firestore.collection('email_verifications').doc(email).get();
+      final verificationData = _verificationCodes[email];
 
-      if (!doc.exists) {
+      if (verificationData == null) {
         throw NotFoundException(
           message: 'Email not found. Please register first.',
         );
@@ -266,18 +245,18 @@ class EmailVerificationService {
       final expiryTime = DateTime.now().add(const Duration(minutes: 10));
 
       // Update with new code
-      await _firestore.collection('email_verifications').doc(email).update({
-        'code': newCode,
-        'createdAt': FieldValue.serverTimestamp(),
-        'expiresAt': Timestamp.fromDate(expiryTime),
-        'attempts': 0,
-        'verified': false,
-      });
+      _verificationCodes[email] = _VerificationData(
+        code: newCode,
+        expiresAt: expiryTime,
+        attempts: 0,
+        verified: false,
+      );
 
       AppLogger.info('Verification code resent for: $email');
       AppLogger.debug('New verification code for $email: $newCode');
 
-      return newCode; // Return for testing purposes only
+      // Send new code via email
+      await _sendVerificationEmailViaResend(email, newCode);
     } catch (e, stackTrace) {
       AppLogger.error('Failed to resend verification code',
           error: e, stackTrace: stackTrace);
@@ -288,65 +267,16 @@ class EmailVerificationService {
     }
   }
 
-  /// Clean up expired verification codes
-  Future<void> cleanupExpiredCodes() async {
-    try {
-      AppLogger.info('Cleaning up expired verification codes');
-
-      final now = Timestamp.now();
-      final snapshot = await _firestore
-          .collection('email_verifications')
-          .where('expiresAt', isLessThan: now)
-          .where('verified', isEqualTo: false)
-          .get();
-
-      for (final doc in snapshot.docs) {
-        await doc.reference.delete();
-      }
-
-      AppLogger.info(
-          'Cleaned up ${snapshot.docs.length} expired verification codes');
-    } catch (e, stackTrace) {
-      AppLogger.error('Error cleaning up expired codes',
-          error: e, stackTrace: stackTrace);
-    }
-  }
-
-  /// Get remaining time for verification code
-  Future<Duration?> getRemainingTime(String email) async {
-    try {
-      final doc =
-          await _firestore.collection('email_verifications').doc(email).get();
-
-      if (!doc.exists) {
-        return null;
-      }
-
-      final expiresAt = (doc.data()?['expiresAt'] as Timestamp?)?.toDate();
-      if (expiresAt == null) {
-        return null;
-      }
-
-      final remaining = expiresAt.difference(DateTime.now());
-      return remaining.isNegative ? Duration.zero : remaining;
-    } catch (e) {
-      AppLogger.error('Error getting remaining time', error: e);
-      return null;
-    }
-  }
-
-  /// Get verification attempts remaining
+  /// Get remaining attempts for verification
   Future<int> getAttemptsRemaining(String email) async {
     try {
-      final doc =
-          await _firestore.collection('email_verifications').doc(email).get();
+      final verificationData = _verificationCodes[email];
 
-      if (!doc.exists) {
+      if (verificationData == null) {
         return 5;
       }
 
-      final attempts = (doc.data()?['attempts'] as int?) ?? 0;
-      return 5 - attempts;
+      return 5 - verificationData.attempts;
     } catch (e) {
       AppLogger.error('Error getting attempts remaining', error: e);
       return 5;
