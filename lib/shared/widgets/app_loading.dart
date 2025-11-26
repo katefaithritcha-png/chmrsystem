@@ -70,7 +70,7 @@ class AppEmptyState extends StatelessWidget {
             icon,
             size: 80,
             color: iconColor ??
-                Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -88,7 +88,7 @@ class AppEmptyState extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.6),
+                        .withValues(alpha: 0.6),
                   ),
               textAlign: TextAlign.center,
             ),
@@ -127,7 +127,7 @@ class AppErrorState extends StatelessWidget {
           Icon(
             icon,
             size: 80,
-            color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -146,7 +146,7 @@ class AppErrorState extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.6),
+                        .withValues(alpha: 0.6),
                   ),
               textAlign: TextAlign.center,
             ),

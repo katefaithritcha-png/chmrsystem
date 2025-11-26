@@ -122,7 +122,7 @@ class StatCard extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.7),
+                          .withAlpha(150),
                     ),
               ),
               if (icon != null)
