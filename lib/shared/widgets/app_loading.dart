@@ -7,11 +7,11 @@ class AppLoadingIndicator extends StatelessWidget {
   final Color? color;
 
   const AppLoadingIndicator({
-    Key? key,
+    super.key,
     this.message,
     this.size = 50,
     this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +52,13 @@ class AppEmptyState extends StatelessWidget {
   final Color? iconColor;
 
   const AppEmptyState({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     this.subtitle,
     this.action,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -111,12 +111,12 @@ class AppErrorState extends StatelessWidget {
   final IconData icon;
 
   const AppErrorState({
-    Key? key,
+    super.key,
     required this.title,
     this.message,
     this.onRetry,
     this.icon = Icons.error_outline,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

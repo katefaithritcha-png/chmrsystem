@@ -11,7 +11,7 @@ class AppCard extends StatelessWidget {
   final BorderSide? border;
 
   const AppCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.elevation = 2,
@@ -19,7 +19,7 @@ class AppCard extends StatelessWidget {
     this.borderRadius,
     this.onTap,
     this.border,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +52,14 @@ class AppCardWithHeader extends StatelessWidget {
   final VoidCallback? onTap;
 
   const AppCardWithHeader({
-    Key? key,
+    super.key,
     required this.title,
     required this.content,
     this.trailing,
     this.padding = const EdgeInsets.all(16),
     this.elevation = 2,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -98,13 +98,13 @@ class StatCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const StatCard({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     this.icon,
     this.iconColor,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

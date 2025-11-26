@@ -216,11 +216,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) {
-        if (didPop) {
-          _timer.cancel();
-        }
-      },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Verify Email'),
