@@ -16,7 +16,6 @@ class ResponsiveText extends StatelessWidget {
 
   const ResponsiveText(
     this.text, {
-    Key? key,
     required this.mobileSize,
     this.tabletSize,
     this.desktopSize,
@@ -26,7 +25,8 @@ class ResponsiveText extends StatelessWidget {
     this.maxLines,
     this.overflow = TextOverflow.clip,
     this.style,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +59,10 @@ class ResponsiveHeading1 extends StatelessWidget {
 
   const ResponsiveHeading1(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
     this.textAlign = TextAlign.start,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +86,10 @@ class ResponsiveHeading2 extends StatelessWidget {
 
   const ResponsiveHeading2(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
     this.textAlign = TextAlign.start,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -113,10 +113,10 @@ class ResponsiveHeading3 extends StatelessWidget {
 
   const ResponsiveHeading3(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
     this.textAlign = TextAlign.start,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -142,12 +142,12 @@ class ResponsiveBody extends StatelessWidget {
 
   const ResponsiveBody(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
     this.textAlign = TextAlign.start,
     this.maxLines,
     this.overflow = TextOverflow.clip,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -173,10 +173,10 @@ class ResponsiveCaption extends StatelessWidget {
 
   const ResponsiveCaption(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
     this.textAlign = TextAlign.start,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -200,10 +200,10 @@ class ResponsiveLabel extends StatelessWidget {
 
   const ResponsiveLabel(
     this.text, {
-    Key? key,
+    super.key,
     this.color,
     this.textAlign = TextAlign.start,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 /// Custom exception classes for the application
 /// Provides structured error handling across the app
+library app_exceptions;
 
 /// Base exception class for all app exceptions
 abstract class AppException implements Exception {
@@ -20,27 +21,19 @@ abstract class AppException implements Exception {
 /// Thrown when authentication fails
 class AuthException extends AppException {
   AuthException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'AUTH_ERROR',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'AUTH_ERROR');
 }
 
 /// Thrown when network request fails
 class NetworkException extends AppException {
   NetworkException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'NETWORK_ERROR',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'NETWORK_ERROR');
 }
 
 /// Thrown when data validation fails
@@ -48,78 +41,54 @@ class ValidationException extends AppException {
   final Map<String, String>? fieldErrors;
 
   ValidationException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
+    super.originalException,
     this.fieldErrors,
-  }) : super(
-          message: message,
-          code: code ?? 'VALIDATION_ERROR',
-          originalException: originalException,
-        );
+  }) : super(code: code ?? 'VALIDATION_ERROR');
 }
 
 /// Thrown when resource is not found
 class NotFoundException extends AppException {
   NotFoundException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'NOT_FOUND',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'NOT_FOUND');
 }
 
 /// Thrown when user lacks permission
 class PermissionException extends AppException {
   PermissionException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'PERMISSION_DENIED',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'PERMISSION_DENIED');
 }
 
 /// Thrown when database operation fails
 class DatabaseException extends AppException {
   DatabaseException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'DATABASE_ERROR',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'DATABASE_ERROR');
 }
 
 /// Thrown when cache operation fails
 class CacheException extends AppException {
   CacheException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'CACHE_ERROR',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'CACHE_ERROR');
 }
 
 /// Thrown for unexpected errors
 class UnexpectedException extends AppException {
   UnexpectedException({
-    required String message,
+    required super.message,
     String? code,
-    dynamic originalException,
-  }) : super(
-          message: message,
-          code: code ?? 'UNEXPECTED_ERROR',
-          originalException: originalException,
-        );
+    super.originalException,
+  }) : super(code: code ?? 'UNEXPECTED_ERROR');
 }
